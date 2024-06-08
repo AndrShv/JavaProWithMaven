@@ -1,1 +1,17 @@
-[{"name":"Buddy","breed":"Golden Retriever","age":3},{"name":"Buddy","breed":"Golden Retriever","age":3},{"name":"bobok","breed":"chixua-xua","age":4}]
+[
+  {
+    "name": "bars",
+    "breed": "cat",
+    "age": 8
+  },
+  {
+    "name": "dog",
+    "breed": "dogg",
+    "age": 4
+  },
+  {
+    "name": "bob",
+    "breed": "dog",
+    "age": 9
+  }
+]
