@@ -1,8 +1,8 @@
-# Container image that runs your code
-FROM alpine:3.10
+FROM maven AS build
+COPY . .
+RUN mvn clean package -DskipTests -Denable-preview
 
-# Copies your code file from your action repository to the filesystem path `/` of the container
-COPY entrypoint.sh /entrypoint.sh
-
-# Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["/entrypoint.sh"]
+FROM openjdk:21
+COPY --from=build /target/jar.jar jar.jar
+EXPOSE 8090
+ENTRYPOINT ["java","--enable-preview","-jar","jar.jar"]

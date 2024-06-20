@@ -1,26 +1,35 @@
 package iplm;
 
 import java.sql.*;
-
 import model.Game;
 import model.GameStoreFunctions;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameStoreFunctionsImpl implements GameStoreFunctions {
-    private static Connection  connection;
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/yourdatabase";
-    private static final String USER = "yourusername";
-    private static final String PASSWORD = "yourpassword";
+    public static Connection connection;
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/myDB";
+    private static final String USER = "root";
+    private static final String PASSWORD = "1111";
 
     public GameStoreFunctionsImpl() {
+
         try {
             connection = DriverManager.getConnection(DB_URL, USER, PASSWORD);
+            System.out.println("Connection established successfully.");
         } catch (SQLException e) {
+            System.err.println("Failed to establish connection to MySQL.");
             e.printStackTrace();
         }
     }
+    static {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 
     @Override
@@ -82,7 +91,6 @@ public class GameStoreFunctionsImpl implements GameStoreFunctions {
         return games;
     }
 
-
     @Override
     public List<Game> filterGamesByRating(float minRating) {
         String sql = "SELECT * FROM Games WHERE rating >= ?";
@@ -128,6 +136,7 @@ public class GameStoreFunctionsImpl implements GameStoreFunctions {
         }
         return games;
     }
+
     public Game extractGameFromResultSet(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         String name = rs.getString("name");
@@ -140,4 +149,3 @@ public class GameStoreFunctionsImpl implements GameStoreFunctions {
         return new Game(id, name, releaseDate, rating, cost, description);
     }
 }
-

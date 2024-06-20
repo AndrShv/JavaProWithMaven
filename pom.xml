@@ -20,9 +20,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.4.0</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.39</version>
         </dependency>
 
         <dependency>
@@ -42,11 +42,6 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.13</version>
-        </dependency>
-        <dependency>
-            <groupId>com.Bob1kGavvvvvvv</groupId>
-            <artifactId>Java-Pro-Studing</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -76,7 +71,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>MainStarter</mainClass>
+                            <mainClass>starter.GameStore</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

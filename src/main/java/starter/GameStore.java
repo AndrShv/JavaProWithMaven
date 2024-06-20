@@ -1,4 +1,6 @@
 package starter;
+//что б запустить:
+//docker build -t test .; docker run -it test
 
 import iplm.GameStoreFunctionsImpl;
 import model.Game;
@@ -13,7 +15,9 @@ public class GameStore {
     private static final Scanner scanner = new Scanner(System.in);
     private static final GameStoreFunctionsImpl gameStore = new GameStoreFunctionsImpl();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
+
+
         while (true) {
             printMenu();
             int choice = Integer.parseInt(scanner.nextLine());
