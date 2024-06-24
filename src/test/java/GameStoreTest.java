@@ -2,13 +2,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.sql.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
-
 public class GameStoreTest {
     @InjectMocks
     private GameStoreFunctionsImpl gameStore;
@@ -20,12 +20,15 @@ public class GameStoreTest {
 
     @Mock
     private ResultSet resultSet;
+    @Mock
+    private PreparedStatement preparedStatement;
 
 
     @BeforeEach
     public void setUp() throws ClassNotFoundException {
         gameStore = new GameStoreFunctionsImpl();
         gameStore.createTable();
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -152,5 +155,40 @@ public class GameStoreTest {
         assertEquals(1, game2.getId());
         assertEquals("Game 1", game2.getName());
     }
+    @Test
+    public void testSearchGameById_GameFound() throws Exception {
+        Timestamp creationDate = Timestamp.valueOf("2024-01-01 00:00:00");
+        int gameId = 1;
+        String sql = "SELECT * FROM Games WHERE id = ?";
+
+        when(connection.prepareStatement(sql)).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt("id")).thenReturn(gameId);
+        when(resultSet.getString("name")).thenReturn("Test Game");
+        when(resultSet.getDouble("cost")).thenReturn(29.99);
+        when(resultSet.getFloat("rating")).thenReturn(4.5f);
+        when(resultSet.getDate("release_date")).thenReturn(Date.valueOf("2023-01-01"));
+        Game expectedGame = new Game(gameId, "Test Game", Date.valueOf("2023-01-01"), 4.5f, 29.99,
+                "null", creationDate);
+
+        Game actualGame = gameStore.searchGameById(gameId);
+
+
+    }
+
+    @Test
+    public void testSearchGameById_GameNotFound() throws Exception {
+        int gameId = 1;
+        String sql = "SELECT * FROM Games WHERE id = ?";
+
+
+        when(connection.prepareStatement(sql)).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+        Game actualGame = gameStore.searchGameById(gameId);
+        assertNull(actualGame);
+    }
 }
+
 

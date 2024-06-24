@@ -26,7 +26,7 @@ public enum Messages {
     FILTER_MIN_RATING("Enter minimum rating: "),
     NO_GAMES_FOUND("No games found."),
     INVALID_CHOICE("Invalid choice. Please try again."),
-    GAME_NAME_EXISTS("Игра с таким именем уже существует. Попробуйте добавить другую игру."),
+    GAME_NAME_EXISTS("A game with the same name already exists. try adding another game."),
     INVALID_INPUT("Invalid Syntax!"),
     EXITING("Exiting...");
 

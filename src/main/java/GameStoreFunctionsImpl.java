@@ -106,6 +106,22 @@ public class GameStoreFunctionsImpl implements GameStoreFunctions {
     }
 
     @Override
+    public Game searchGameById(int id) {
+        String sql = "SELECT * FROM Games WHERE id = ?";
+        Game game = null;
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                game = extractGameFromResultSet(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return game;
+    }
+
+    @Override
     public List<Game> filterGamesByCost(double minCost, double maxCost) {
         String sql = "SELECT * FROM Games WHERE cost BETWEEN ? AND ?";
         List<Game> games = new ArrayList<>();

@@ -16,11 +16,4 @@ public class Game {
     private double cost;
     private String description;
     private Timestamp creationDate;
-
-
-
-
-
-
-
 }

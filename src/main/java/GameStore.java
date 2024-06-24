@@ -1,69 +1,93 @@
-
-
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Scanner;
 
 public class GameStore {
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final GameStoreFunctionsImpl gameStore = new GameStoreFunctionsImpl();
+    private final Scanner scanner = new Scanner(System.in);
+    private final GameStoreFunctionsImpl gameStore = new GameStoreFunctionsImpl();
 
     public static void main(String[] args) throws ClassNotFoundException {
-        gameStore.createTable();
-        while (true) {
-            printMenu();
-            String input = scanner.nextLine();
-            if (input == null || input.isEmpty()) {
-                System.out.println(Messages.INVALID_CHOICE.getMessage());
-                continue;
-            }
-            int choice = Integer.parseInt(input);
-
-            switch (choice) {
-                case 1:
-                    addGame();
-                    break;
-                case 2:
-                    deleteGame();
-                    break;
-                case 3:
-                    searchGameByName();
-                    break;
-                case 4:
-                    filterGamesByCost();
-                    break;
-                case 5:
-                    filterGamesByRating();
-                    break;
-                case 6:
-                    getAllGamesSortedByCreationDate();
-                    break;
-                case 7:
-                    getAllGames();
-                    break;
-                case 8:
-                    System.out.println(Messages.EXITING.getMessage());
-                    return;
-                default:
-                    System.out.println(Messages.INVALID_CHOICE.getMessage());
-            }
-        }
+        GameStore gameStoreApp = new GameStore();
+        gameStoreApp.run();
     }
 
-    public static void printMenu() {
-        System.out.println(Messages.MENU_HEADER.getMessage());
-        System.out.println(Messages.MENU_OPTION_1.getMessage());
-        System.out.println(Messages.MENU_OPTION_2.getMessage());
-        System.out.println(Messages.MENU_OPTION_3.getMessage());
-        System.out.println(Messages.MENU_OPTION_4.getMessage());
-        System.out.println(Messages.MENU_OPTION_5.getMessage());
-        System.out.println(Messages.MENU_OPTION_6.getMessage());
-        System.out.println(Messages.MENU_OPTION_7.getMessage());
-        System.out.println(Messages.MENU_OPTION_8.getMessage());
+    public void run() throws ClassNotFoundException {
+        gameStore.createTable();
+        boolean continueRunning;
+        do {
+            continueRunning = processUserChoice();
+        } while (continueRunning);
+        System.out.println(Messages.EXITING.getMessage());
+    }
+
+    public boolean processUserChoice() {
+        printMenu();
+        String input = scanner.nextLine();
+        if (input == null || input.isEmpty()) {
+            System.out.println(Messages.INVALID_CHOICE.getMessage());
+            return true;
+        }
+
+        int choice;
+        try {
+            choice = Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            System.out.println(Messages.INVALID_CHOICE.getMessage());
+            return true;
+        }
+
+        switch (choice) {
+            case 1:
+                addGame();
+                break;
+            case 2:
+                deleteGame();
+                break;
+            case 3:
+                searchGameByName();
+                break;
+            case 4:
+                filterGamesByCost();
+                break;
+            case 5:
+                filterGamesByRating();
+                break;
+            case 6:
+                getAllGamesSortedByCreationDate();
+                break;
+            case 7:
+                getAllGames();
+                break;
+            case 8:
+                return false;
+            default:
+                System.out.println(Messages.INVALID_CHOICE.getMessage());
+        }
+        return true;
+    }
+
+    public void printMenu() {
+        Messages[] menuMessages = {
+                Messages.MENU_HEADER,
+                Messages.MENU_OPTION_1,
+                Messages.MENU_OPTION_2,
+                Messages.MENU_OPTION_3,
+                Messages.MENU_OPTION_4,
+                Messages.MENU_OPTION_5,
+                Messages.MENU_OPTION_6,
+                Messages.MENU_OPTION_7,
+                Messages.MENU_OPTION_8
+
+        };
+        for (Messages message : menuMessages) {
+            System.out.println(message.getMessage());
+        }
+
         System.out.print(Messages.MENU_PROMPT.getMessage());
     }
 
-    public static void addGame() {
+    public void addGame() {
         System.out.print(Messages.ADD_GAME_NAME.getMessage());
         String name = scanner.nextLine();
         if (name == null || name.isEmpty()) {
@@ -107,25 +131,30 @@ public class GameStore {
             System.out.println(Messages.INVALID_INPUT.getMessage());
             return;
         }
+        Timestamp creationDate = Timestamp.valueOf("2024-01-01 00:00:00");
 
-        Game game = new Game(0, name, releaseDate, rating, cost, description, null);
+
+        Game game = new Game(0, name, releaseDate, rating, cost, description, creationDate);
         gameStore.addGame(game);
         System.out.println(Messages.GAME_ADDED.getMessage());
     }
 
-    public static void deleteGame() {
+    public void deleteGame() {
         System.out.print(Messages.DELETE_GAME_ID.getMessage());
         String idInput = scanner.nextLine();
         if (idInput == null || idInput.isEmpty()) {
             System.out.println(Messages.INVALID_INPUT.getMessage());
             return;
         }
-        int id = Integer.parseInt(idInput);
-        gameStore.deleteGame(id);
-        System.out.println(Messages.GAME_DELETED.getMessage());
+        Game game = gameStore.searchGameById(Integer.parseInt(idInput));
+        if (game != null) {
+            printGameDetails(game);
+        } else {
+            System.out.println(Messages.GAME_NOT_FOUND.getMessage());
+        }
     }
 
-    public static void searchGameByName() {
+    public void searchGameByName() {
         System.out.print(Messages.SEARCH_GAME_NAME.getMessage());
         String name = scanner.nextLine();
         if (name == null || name.isEmpty()) {
@@ -140,7 +169,7 @@ public class GameStore {
         }
     }
 
-    public static void filterGamesByCost() {
+    public void filterGamesByCost() {
         System.out.print(Messages.FILTER_MIN_COST.getMessage());
         String minCostInput = scanner.nextLine();
         if (minCostInput == null || minCostInput.isEmpty()) {
@@ -161,7 +190,7 @@ public class GameStore {
         printGameList(games);
     }
 
-    public static void filterGamesByRating() {
+    public void filterGamesByRating() {
         System.out.print(Messages.FILTER_MIN_RATING.getMessage());
         String minRatingInput = scanner.nextLine();
         if (minRatingInput == null || minRatingInput.isEmpty()) {
@@ -174,17 +203,17 @@ public class GameStore {
         printGameList(games);
     }
 
-    public static void getAllGamesSortedByCreationDate() {
+    public void getAllGamesSortedByCreationDate() {
         List<Game> games = gameStore.getAllGamesSortedByCreationDate();
         printGameList(games);
     }
 
-    private static void getAllGames() {
+    private void getAllGames() {
         List<Game> games = gameStore.getAllGames();
         printGameList(games);
     }
 
-    public static void printGameDetails(Game game) {
+    public void printGameDetails(Game game) {
         if (game == null) {
             System.out.println(Messages.INVALID_INPUT.getMessage());
             return;
@@ -199,7 +228,7 @@ public class GameStore {
         System.out.println();
     }
 
-    public static void printGameList(List<Game> games) {
+    public void printGameList(List<Game> games) {
         if (games == null || games.isEmpty()) {
             System.out.println(Messages.NO_GAMES_FOUND.getMessage());
         } else {
