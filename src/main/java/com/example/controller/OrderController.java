@@ -4,9 +4,10 @@ import com.example.model.Order;
 import com.example.model.Product;
 import com.example.service.OrderService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
@@ -21,10 +22,10 @@ public class OrderController {
         if (order != null) {
             return ResponseEntity.ok(order);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping
+    @PostMapping("/{id}")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         Order createdOrder = orderService.createOrder(order);
         return ResponseEntity.status(201).body(createdOrder);
@@ -45,7 +46,7 @@ public class OrderController {
         if (isDeleted) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{orderId}/products")
@@ -54,7 +55,7 @@ public class OrderController {
         if (updatedOrder != null) {
             return ResponseEntity.ok(updatedOrder);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{orderId}/products/{productId}")
@@ -63,6 +64,6 @@ public class OrderController {
         if (updatedOrder != null) {
             return ResponseEntity.ok(updatedOrder);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 }

@@ -2,53 +2,64 @@ package com.example.service;
 
 import com.example.model.Order;
 import com.example.model.Product;
+import com.example.repository.OrderRepository;
+import com.example.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class OrderService {
-    private Map<Integer, Order> orderRepository = new HashMap<>();
-    private int currentId = 1;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public Order getOrderById(int id) {
-        return orderRepository.get(id);
+        Optional<Order> order = orderRepository.findById((long) id);
+        return order.orElse(null);
     }
 
     public Order createOrder(Order order) {
-        order.setId(currentId++);
-        orderRepository.put(order.getId(), order);
-        return order;
+        return orderRepository.save(order);
     }
 
     public Order updateOrder(int id, Order order) {
-        if (orderRepository.containsKey(id)) {
+        if (orderRepository.existsById((long) id)) {
             order.setId(id);
-            orderRepository.put(id, order);
-            return order;
+            return orderRepository.save(order);
         }
         return null;
     }
 
     public boolean deleteOrder(int id) {
-        return orderRepository.remove(id) != null;
+        if (orderRepository.existsById((long) id)) {
+            orderRepository.deleteById((long) id);
+            return true;
+        }
+        return false;
     }
 
     public Order addProductToOrder(int id, Product product) {
-        Order order = orderRepository.get(id);
-        if (order != null) {
+        Optional<Order> optionalOrder = orderRepository.findById((long) id);
+        if (optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            productRepository.save(product); // Save the product first
             order.getProducts().add(product);
-            return order;
+            return orderRepository.save(order);
         }
         return null;
     }
 
     public Order removeProductFromOrder(int id, int productId) {
-        Order order = orderRepository.get(id);
-        if (order != null) {
+        Optional<Order> optionalOrder = orderRepository.findById((long) id);
+        if (optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
             order.getProducts().removeIf(p -> p.getId() == productId);
-            return order;
+            return orderRepository.save(order);
         }
         return null;
     }
