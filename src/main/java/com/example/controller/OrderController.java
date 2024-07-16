@@ -22,7 +22,7 @@ public class OrderController {
         if (order != null) {
             return ResponseEntity.ok(order);
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/")
@@ -44,9 +44,9 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable int id) {
         boolean isDeleted = orderService.deleteOrder(id);
         if (isDeleted) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.notFound().build();
     }
 
     @PatchMapping("/{orderId}/products")
@@ -55,7 +55,7 @@ public class OrderController {
         if (updatedOrder != null) {
             return ResponseEntity.ok(updatedOrder);
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{orderId}/products/{productId}")
@@ -64,6 +64,6 @@ public class OrderController {
         if (updatedOrder != null) {
             return ResponseEntity.ok(updatedOrder);
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.notFound().build();
     }
 }
