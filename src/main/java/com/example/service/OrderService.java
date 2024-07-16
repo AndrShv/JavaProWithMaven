@@ -47,7 +47,7 @@ public class OrderService {
         Optional<Order> optionalOrder = orderRepository.findById((long) id);
         if (optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-            productRepository.save(product); // Save the product first
+            productRepository.save(product);
             order.getProducts().add(product);
             return orderRepository.save(order);
         }

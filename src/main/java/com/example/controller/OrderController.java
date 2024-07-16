@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
@@ -25,7 +25,7 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("/")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         Order createdOrder = orderService.createOrder(order);
         return ResponseEntity.status(201).body(createdOrder);

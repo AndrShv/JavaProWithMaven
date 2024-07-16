@@ -13,7 +13,8 @@ public class Order {
     private int id;
     private String customerName;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "order_id")
     private List<Product> products;
 
     public Order() {
