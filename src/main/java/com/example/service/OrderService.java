@@ -12,10 +12,10 @@ import java.util.Optional;
 @Service
 public class OrderService {
 
-    @Autowired
+
     private OrderRepository orderRepository;
 
-    @Autowired
+
     private ProductRepository productRepository;
 
     public Order getOrderById(int id) {
