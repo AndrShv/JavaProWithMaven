@@ -58,6 +58,7 @@ public class OrderController {
         return ResponseEntity.notFound().build();
     }
 
+
     @DeleteMapping("/{orderId}/products/{productId}")
     public ResponseEntity<Order> removeProductFromOrder(@PathVariable int orderId, @PathVariable int productId) {
         Order updatedOrder = orderService.removeProductFromOrder(orderId, productId);
