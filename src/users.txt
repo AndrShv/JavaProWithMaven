@@ -1,0 +1,4 @@
+db.users.insertOne({
+    "user": "shcolnik2"
+    "age": "16"
+    })
