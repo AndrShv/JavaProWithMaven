@@ -1,8 +1,5 @@
 package com.example.configuration;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,26 +13,6 @@ import javax.sql.DataSource;
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 
-    private final String connectionString = "mongodb://localhost:27017";
-
-    @Bean
-    public MongoClient mongoClient() {
-        return MongoClients.create(connectionString);
-    }
-
-    @Bean
-    public MongoDatabase connect(MongoClient mongoClient) {
-        try {
-            MongoDatabase database = mongoClient.getDatabase("newDB");
-            System.out.println("Connected to database: " + database.getName());
-            return database;
-        } catch (Exception e) {
-            System.err.println("Error connecting to MongoDB: " + e.getMessage());
-            throw e;
-        }
-    }
-}
-/*
     @Bean
     public DataSource getDataSource() {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
@@ -50,4 +27,4 @@ public class DatabaseConfiguration {
     public PlatformTransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
-    */
+}
