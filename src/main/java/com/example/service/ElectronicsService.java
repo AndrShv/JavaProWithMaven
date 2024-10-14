@@ -4,9 +4,10 @@ import com.example.model.Electronics;
 import com.example.repository.ComponentRepository;
 import com.example.repository.ElectronicsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+@Service
 public class ElectronicsService {
 
     private final ElectronicsRepository electronicsRepository;
