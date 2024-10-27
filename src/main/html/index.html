@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glovo Delivery</title>
+    <link rel="stylesheet" href="/src/main/css/style.css">
+</head>
+<body>
+<header>
+    <a href="https://www.youtube.com/" class="logo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c6/Glovo_logo.png" alt="Glovo Logo" class="logo-img">
+    </a>
+    <div class="container">
+        <a href="https://www.youtube.com/" class="logoMain">
+            <img src="https://cdn.prod.website-files.com/62b0e6308cc691625470b227/63dbfaf5f7460cf959c91af3_kBAkJr8acrbgltvsXSXlzdm9mluY2PZiZDalcsz0au0.png" alt="Glovo Logo" class="logo-img">
+        </a>
+        <div class="location">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Deliver to: Current Location</span>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search for restaurants or products">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <div class="categories-container">
+
+        <!-- Супермаркеты -->
+        <div class="category-group" data-category="Supermarkets">
+            <h2>Supermarkets</h2>
+
+            <div class="subcategories">
+
+                <button class="subcategory-btn" data-subcategory="ATB">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9SPN_bgNS9D3XQCWf3qJlh6ELKPN7gICyjA&s" alt="ATB">
+                    <span>ATБ</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="Silpo">
+                    <img src="https://tickikids.ams3.cdn.digitaloceanspaces.com/z1.cache/gallery/organizations/6644/image_5d5106484e8208.15638414.jpg" alt="Сільпо">
+                    <span>Сільпо</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="Novus">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOv6Is9rNdPbQp8xkrUIgvpIJJsztE5-_FeQ&s" alt="Novus">
+                    <span>Таврія В</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Аптеки -->
+        <div class="category-group" data-category="Pharmacies">
+            <h2>Pharmacies</h2>
+            <div class="subcategories">
+                <button class="subcategory-btn" data-subcategory="Pharmacy1">
+                    <img src="https://media.licdn.com/dms/image/v2/C560BAQGD8aqnqmQIpQ/company-logo_100_100/company-logo_100_100/0/1631416251929?e=2147483647&v=beta&t=S0mGta8Z6e-9N96xLQdpDkYFu51UbNduV4eitwICvs0" alt="Pharmacy1">
+                    <span>АНЦ</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="Pharmacy2">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxu2JIjhUfN4Mohsjcke2ISBrRnevAT0XhIA&s" alt="Pharmacy2">
+                    <span>Подорожник</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="Pharmacy3">
+                    <img src="https://play-lh.googleusercontent.com/WSat8GCAx77X_a2eMS8_-oSGJMa3b4qLsbdl9s0TQJM66tgYt21MGYuQ5Y7lZBTm6XFm" alt="Pharmacy3">
+                    <span>Доброго Дня</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Рестораны -->
+        <div class="category-group" data-category="Restaurants">
+            <h2>Restaurants</h2>
+            <div class="subcategories">
+                <button class="subcategory-btn" data-subcategory="FastFood">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT1iiavJcgFKX04pbbgTphVOvjHkJNkJLQc48Bj04iQsxYk4zVypyhqtNg9Bo9i-LQQIY&usqp=CAU" alt="FastFood">
+                    <span>Софи Гастро Кафе Бар дю Вин</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="Italian">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyQuSLt_u3NZIufH2PbroYoFSuc3_l9-wAuA&s" alt="Italian">
+                    <span>Azuma</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="Japanese">
+                    <img src="https://dyj6gt4964deb.cloudfront.net/images/9a2e7d9f-f4e6-4ba7-bf0b-0d7d67e66565.jpeg" alt="Japanese">
+                    <span>Solo Restaurant</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Зоомагазины -->
+        <div class="category-group" data-category="PetStores">
+            <h2>Pet Stores</h2>
+            <div class="subcategories">
+                <button class="subcategory-btn" data-subcategory="PetSupplies">
+                    <img src="https://app.lovesalesua.com/ua_icons_web/masterzoo.png" alt="PetSupplies">
+                    <span>Master Zoo</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="FoodForPets">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXM5At5XKVTYFcRV69MLcl3shzyt53E1K9VQ&s" alt="FoodForPets">
+                    <span>Zoo Dream</span>
+                </button>
+                <button class="subcategory-btn" data-subcategory="FoodForPets">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTE_i5a4iITSIlJyopIPfWzRCaBfSGviq9CLw&s" alt="FoodForPets">
+                    <span>Pet Home</span>
+                </button>
+            </div>
+        </div>
+        <svg class="wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#ffeb99" fill-opacity="1" d="M0,96L48,122.7C96,149,192,203,288,197.3C384,192,480,128,576,117.3C672,107,768,149,864,176C960,203,1056,213,1152,186.7C1248,160,1344,96,1392,64L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+
+
+
+
+
+</main>
+<div id="menu-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 id="menu-title">Menu</h2>
+        <div id="menu-items"></div>
+    </div>
+</div>
+
+<script src="/src/main/js/script.js"></script>
+</body>
+</html>
