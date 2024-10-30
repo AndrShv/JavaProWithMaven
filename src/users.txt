@@ -1,4 +1,4 @@
 db.users.insertOne({
-    "user": "shcolnik2"
+    "admin": "shcolnik2"
     "age": "16"
     })

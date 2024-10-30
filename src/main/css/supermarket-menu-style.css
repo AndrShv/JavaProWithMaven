@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+:root {
+    --primary: #ff7f50;
+    --primary-hover: #ff6347;
+    --background: #f9fafb;
+    --card-background: #ffffff;
+    --text: #333333;
+    --text-light: #666666;
+}
+
+body {
+    font-family: "Roboto", Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background);
+    color: var(--text);
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: var(--primary);
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#search {
+    padding: 10px;
+    font-size: 1rem;
+    width: 60%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.search-button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-button:hover {
+    background-color: var(--primary-hover);
+}
+
+.menu {
+    margin-top: 20px;
+}
+
+.category summary {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary);
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.item-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.item-name {
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.item-price {
+    font-size: 1rem;
+    color: var(--text-light);
+    margin-left: 15px;
+}
+
+.add-button {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.add-button:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    #search {
+        width: 100%;
+    }
+
+    .search-container {
+        flex-direction: column;
+    }
+}

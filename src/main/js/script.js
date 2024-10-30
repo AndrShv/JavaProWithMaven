@@ -1,9 +1,4 @@
-const restaurants = [
-    { id: 1, name: "Burger Palace", rating: 4.5, cuisine: "Fast Food", deliveryTime: "20-30 min", image: "/placeholder.svg?height=150&width=250", menu: ["Cheeseburger", "Fries", "Coke"] },
-    { id: 2, name: "Pizza Haven", rating: 4.2, cuisine: "Italian", deliveryTime: "30-40 min", image: "/placeholder.svg?height=150&width=250", menu: ["Pepperoni Pizza", "Garlic Bread", "Caesar Salad"] },
-    { id: 3, name: "Sushi Spot", rating: 4.8, cuisine: "Japanese", deliveryTime: "25-35 min", image: "/placeholder.svg?height=150&width=250", menu: ["Salmon Sushi", "Tuna Roll", "Miso Soup"] },
-    { id: 4, name: "Taco Town", rating: 4.3, cuisine: "Mexican", deliveryTime: "15-25 min", image: "/placeholder.svg?height=150&width=250", menu: ["Tacos", "Nachos", "Quesadilla"] },
-];
+
 
 const categoryButtons = document.querySelectorAll('.category-btn');
 const searchInput = document.getElementById('search-input');
@@ -123,4 +118,31 @@ function filterItemsBySubcategory(subcategory) {
         }
     });
 }
+document.querySelectorAll('.category-group').forEach(category => {
+    category.addEventListener('click', () => {
+        const categoryName = category.getAttribute('data-category');
+        let pageUrl;
+
+        switch (categoryName) {
+            case 'Supermarkets':
+                pageUrl = 'supermarkets-menu.html';
+                break;
+            case 'Pharmacies':
+                pageUrl = 'pharmacies-menu.html';
+                break;
+            case 'Restaurants':
+                pageUrl = 'restaurants-menu.html';
+                break;
+            case 'PetStores':
+                pageUrl = 'petstores-menu.html';
+                break;
+            default:
+                pageUrl = '#';
+        }
+
+        if (pageUrl !== '#') {
+            window.location.href = pageUrl;
+        }
+    });
+});
 

@@ -18,25 +18,13 @@ body {
     padding: 0;
     background-color: var(--background);
     color: var(--text);
-        overflow-x: hidden; /* Убирает прокрутку по горизонтали */
-}
-.wave-container {
-    position: relative;
-    overflow: hidden;
-    background-color: #ffeb99; /* цвет фона */
+    overflow-x: hidden; /* Убирает прокрутку по горизонтали */
 }
 
 .content {
     padding: 50px; /* отступы для контента, можно настроить */
 }
 
-.wave {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: auto;
-    z-index: -1; /* Помещает волну за контентом */
-}
 
 
 .container {
