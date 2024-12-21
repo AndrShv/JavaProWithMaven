@@ -16,11 +16,6 @@ public class JwtTokenUtil {
     @Value("${jwt.expirationMs}")
     private int jwtExpirationMs;
 
-    @Value("${jwt.secret}")
-    private String secretKey;
-
-    @Value("${jwt.expiration}")
-    private long expirationTime;
 
 
     public String generateToken(String username) {
