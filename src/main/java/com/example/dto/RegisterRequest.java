@@ -1,19 +1,22 @@
 package com.example.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
 public class RegisterRequest {
-    @NotBlank
-    private String name;
-    @NotBlank
-    private String role;
-    @NotBlank
+    @NotEmpty(message = "Имя пользователя не должно быть пустым")
+    private String username;
+
+    @NotEmpty(message = "Пароль не должен быть пустым")
     private String password;
 
+    @NotEmpty(message = "Роль не должна быть пустой")
+    private String role;
+
     public String getUsername() {
-        return name;
+        return username;
     }
 
     public String getPassword() {

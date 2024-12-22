@@ -19,6 +19,10 @@ public class UserService {
 
 
     public User register(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Пользователь с таким именем уже существует: " + user.getUsername());
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

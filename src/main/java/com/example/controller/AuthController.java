@@ -26,13 +26,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        if (request.getUsername() == null || request.getPassword() == null || request.getRole() == null) {
+            return ResponseEntity.badRequest().body("Все поля обязательны");
+        }
+
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
         userService.register(user);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.ok("Пользователь успешно зарегистрирован");
     }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {

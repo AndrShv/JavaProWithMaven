@@ -3,10 +3,15 @@ package com.example.security;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class JwtTokenUtil {
@@ -16,38 +21,38 @@ public class JwtTokenUtil {
     @Value("${jwt.expirationMs}")
     private int jwtExpirationMs;
 
-
-
-    public String generateToken(String username) {
-       return Jwts.builder()
-               .setSubject(username)
-               .setIssuedAt(new Date())
-               .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
-               .signWith(io.jsonwebtoken.SignatureAlgorithm.HS512, jwtSecret)
-               .compact();
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String getUsernameFromToken(String token){
+    public String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512) // Обновленный метод
+                .compact();
+    }
 
-        return Jwts.parser()
-                .setSigningKey(jwtSecret)
+    public String getUsernameFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
 
-    public boolean validateToken(String token){
+    public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .setSigningKey(jwtSecret)
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
                     .parseClaimsJws(token);
             return true;
-        }catch (JwtException | IllegalArgumentException e){
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
-
         }
     }
-
-
-
 }
+
