@@ -55,6 +55,42 @@ CREATE TABLE `reviews` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
+CREATE TABLE `lessons` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `course_id` BIGINT NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `content` TEXT,
+  `video_url` VARCHAR(255),
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `lessons_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+CREATE TABLE `questions` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `test_id` BIGINT NOT NULL,
+  `question_text` TEXT NOT NULL,
+  `question_type` ENUM('multiple_choice', 'open_ended') NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+CREATE TABLE `tests` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `course_id` BIGINT NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `tests_ibfk_1` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 
 spring.datasource.url=jdbc:mysql://localhost:3306/myDb
 spring.datasource.username=root
