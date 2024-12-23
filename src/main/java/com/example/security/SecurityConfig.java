@@ -35,9 +35,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> cors.disable()) // Отключить CORS для тестов (можно заменить на настройку)
+        http.cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
-                .authorizeRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -64,3 +64,6 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(jwtTokenUtil, userDetailsService);
     }
 }
+
+
+

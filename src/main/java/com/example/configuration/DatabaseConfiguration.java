@@ -19,7 +19,7 @@ public class DatabaseConfiguration {
     public DataSource getDataSource() {
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
-        dataSourceBuilder.url("jdbc:mysql://localhost:3306/myDB");
+        dataSourceBuilder.url("jdbc:mysql://localhost:3306/NMDB");
         dataSourceBuilder.username("root");
         dataSourceBuilder.password("1111");
         return dataSourceBuilder.build();
