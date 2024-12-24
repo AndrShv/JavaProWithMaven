@@ -1,31 +1,36 @@
 package com.example.service;
+
 import com.example.dto.CourseRequest;
 import com.example.dto.CourseResponse;
 import com.example.mappers.CourseMapper;
 import com.example.model.Course;
 import com.example.model.User;
+import com.example.rabbitMqConfigs.NotificationService;
 import com.example.repository.CourseRepository;
 import com.example.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
 public class CourseService {
-    private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
-    private final CourseMapper courseMapper;
 
-    public CourseService(CourseRepository courseRepository, UserRepository userRepository, CourseMapper courseMapper) {
-        this.courseRepository = courseRepository;
-        this.userRepository = userRepository;
-        this.courseMapper = courseMapper;
-    }
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CourseMapper courseMapper;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public CourseResponse createCourse(CourseRequest request, String teacherUsername) {
         System.out.println("Начало создания курса для преподавателя: " + teacherUsername);
@@ -41,6 +46,11 @@ public class CourseService {
 
         Course savedCourse = courseRepository.save(course);
         System.out.println("Курс успешно сохранен: " + savedCourse.getTitle());
+
+        String notificationText = "Новый курс был создан: " + savedCourse.getTitle();
+        notificationService.sendAsyncNotification(teacher.getEmail(), "Новый курс", notificationText);
+        System.out.println("Уведомление отправлено");
+
         return courseMapper.toResponse(savedCourse);
     }
 
@@ -57,6 +67,7 @@ public class CourseService {
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
         System.out.println("Курс успешно обновлен: " + course.getTitle());
+
         return courseMapper.toResponse(course);
     }
 

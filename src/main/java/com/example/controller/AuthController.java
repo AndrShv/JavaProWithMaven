@@ -26,7 +26,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
-        if (request.getUsername() == null || request.getPassword() == null || request.getRole() == null) {
+        if (request.getUsername() == null || request.getPassword() == null || request.getRole() == null || request.getEmail() == null) {
             return ResponseEntity.badRequest().body("Все поля обязательны");
         }
 
@@ -34,6 +34,7 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
+        user.setEmail(request.getEmail());
         userService.register(user);
         return ResponseEntity.ok("Пользователь успешно зарегистрирован");
     }
