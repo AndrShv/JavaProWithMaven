@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.dto.*;
 import com.example.service.CourseService;
+import com.example.service.NotificationService;
 import jakarta.validation.Valid;
 import org.apache.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,14 @@ import java.util.List;
 public class CourseController {
 
     private final CourseService courseService;
+    private NotificationService notificationService;
+
 
     public CourseController(CourseService courseService) {
         this.courseService = courseService;
     }
 
-    @PostMapping
+    @PostMapping("/create-course")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<CourseResponse> createCourse(
             @RequestBody@Valid CourseRequest request,
@@ -29,6 +32,8 @@ public class CourseController {
             ){
         String teacherUsername = principal.getName();
         CourseResponse response = courseService.createCourse(request, teacherUsername);
+        String teacherEmail = response.getTeacherEmail();
+        notificationService.sendCourseNotification(teacherEmail);
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
     }
 
@@ -65,4 +70,6 @@ public class CourseController {
         CourseResponse response = courseService.getCourseById(courseId);
         return ResponseEntity.ok(response);
     }
+
+
 }

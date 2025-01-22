@@ -13,8 +13,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages = "com.example.model")
 @EnableJpaRepositories(basePackages = "com.example.repository")
 @ComponentScan(basePackages =  {"com.example.configuration"})
-public class DemoApplication {
+@ComponentScan(basePackages = {"com.example.service", "com.example.rabbitMqConfigs"})
 
+public class DemoApplication {
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }

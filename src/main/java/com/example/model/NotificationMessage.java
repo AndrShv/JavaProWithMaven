@@ -15,14 +15,21 @@ public class NotificationMessage implements Serializable {
     private Long id;
     @Column(name = "recipient")
     private String recipient;
+    @Column(name = "user_id")
+    private String userId;
+    @Column(name = "is_read")
+    private Boolean isRead;
+
     private String subject;
     private String text;
 
     public NotificationMessage(String recipient, String subject, String text) {
-        this.recipient = this.recipient;
+        this.recipient = recipient;
         this.subject = subject;
         this.text = text;
+        this.isRead = false;
     }
+
     public NotificationMessage() {
     }
 }

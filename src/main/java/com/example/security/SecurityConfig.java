@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/v1/notification/send").permitAll()
                         .requestMatchers("/api/send-message").permitAll()
                         .anyRequest().authenticated()
                 )

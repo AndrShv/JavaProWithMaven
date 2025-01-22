@@ -12,5 +12,6 @@ public class CourseResponse {
     private String title;
     private String description;
     private String teacherUsername;
+    private String teacherEmail;
     private LocalDateTime createdAt;
 }
