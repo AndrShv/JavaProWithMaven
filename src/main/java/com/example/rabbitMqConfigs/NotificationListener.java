@@ -1,5 +1,6 @@
 package com.example.rabbitMqConfigs;
 
+import com.example.configuration.messaging.RabbitMQConfig;
 import com.example.model.NotificationMessage;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

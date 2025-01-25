@@ -1,16 +1,12 @@
 package com.example.rabbitMqConfigs;
 
+import com.example.configuration.messaging.RabbitMQConfig;
 import com.example.model.NotificationMessage;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-
-import static java.awt.SystemColor.text;
 
 
 @Service

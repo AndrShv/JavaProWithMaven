@@ -1,8 +1,7 @@
 package com.example.mappers;
 
-import com.example.dto.CourseResponse;
+import com.example.dto.response.CourseResponse;
 import com.example.model.Course;
-import com.example.repository.CourseRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

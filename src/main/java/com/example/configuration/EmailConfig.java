@@ -1,4 +1,5 @@
 package com.example.configuration;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,16 +14,17 @@ public class EmailConfig {
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 
-        // SMTP server settings
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
 
-        // Email credentials
-        mailSender.setUsername("andrey678a@gmail.com");
-        mailSender.setPassword("18082009andr");
+        mailSender.setUsername("${spring.mail.username}");
+        mailSender.setPassword("${spring.mail.password}");
+
 
         // Additional properties
         Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
