@@ -9,11 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(exclude = {R2dbcAutoConfiguration.class})
-//@ComponentScan(basePackages = "com.example")
 @EntityScan(basePackages = "com.example.model")
 @EnableJpaRepositories(basePackages = "com.example.repository")
-//@ComponentScan(basePackages =  {"com.example.configuration"})
-//@ComponentScan(basePackages = {"com.example.service", "com.example.rabbitMqConfigs"})
 @ComponentScan(basePackages = {"com.example", "com.example.configuration", "com.example.service", "com.example.rabbitMqConfigs"})
 
 public class DemoApplication {
