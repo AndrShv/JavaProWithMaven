@@ -17,17 +17,16 @@ public class UserService {
 
     public void register(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Пользователь с таким именем уже существует: " + user.getUsername());
+            throw new IllegalArgumentException("A user with this username already exists: " + user.getUsername());
         }
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Пользователь с таким email уже существует: " + user.getEmail());
+            throw new IllegalArgumentException("A user with this email already exists: " + user.getEmail());
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Шифруем пароль перед сохранением
-        System.out.println("Сохраняем пользователя: " + user.getUsername());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        System.out.println("Saving user: " + user.getUsername());
         userRepository.save(user);
-        System.out.println("Пользователь сохранен успешно: " + user.getUsername());
+        System.out.println("User saved successfully: " + user.getUsername());
     }
 }
-

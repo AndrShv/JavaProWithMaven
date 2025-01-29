@@ -33,11 +33,11 @@ public class CourseService {
     private NotificationService notificationService;
 
     public CourseResponse createCourse(CourseRequest request, String teacherUsername) {
-        System.out.println("Начало создания курса для преподавателя: " + teacherUsername);
+        System.out.println("Start creating a teacher course: " + teacherUsername);
         User teacher = userRepository.findByUsername(teacherUsername)
                 .orElseThrow(() -> new EntityNotFoundException("Teacher not found"));
 
-        System.out.println("Преподаватель найден: " + teacher.getUsername());
+        System.out.println("Teacher found: " + teacher.getUsername());
 
         Course course = new Course();
         course.setTitle(request.getTitle());
@@ -45,56 +45,56 @@ public class CourseService {
         course.setTeacher(teacher);
 
         Course savedCourse = courseRepository.save(course);
-        System.out.println("Курс успешно сохранен: " + savedCourse.getTitle());
+        System.out.println("Course successfully saved: " + savedCourse.getTitle());
 
-        String notificationText = "Новый курс был создан: " + savedCourse.getTitle();
-        notificationService.sendAsyncNotification(teacher.getEmail(), "Новый курс", notificationText);
-        System.out.println("Уведомление отправлено");
+        String notificationText = "A new course has been created: " + savedCourse.getTitle();
+        notificationService.sendAsyncNotification(teacher.getEmail(), "New Course", notificationText);
+        System.out.println("Notification sent");
 
         return courseMapper.toResponse(savedCourse);
     }
 
     public CourseResponse updateCourse(Long courseId, CourseRequest request, String teacherUsername) {
-        System.out.println("Начало обновления курса с ID: " + courseId + " для преподавателя: " + teacherUsername);
+        System.out.println("Starting course update with ID: " + courseId + " for teacher: " + teacherUsername);
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found"));
 
         if (!course.getTeacher().getUsername().equals(teacherUsername)) {
-            System.out.println("Преподаватель не авторизован для обновления курса");
+            System.out.println("Teacher is not authorized to update the course");
             throw new AccessDeniedException("You are not allowed to update this course");
         }
 
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
-        System.out.println("Курс успешно обновлен: " + course.getTitle());
+        System.out.println("Course successfully updated: " + course.getTitle());
 
         return courseMapper.toResponse(course);
     }
 
     public void deleteCourse(Long courseId, String teacherUsername) {
-        System.out.println("Начало удаления курса с ID: " + courseId + " для преподавателя: " + teacherUsername);
+        System.out.println("Starting course deletion with ID: " + courseId + " for teacher: " + teacherUsername);
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found"));
 
         if (!course.getTeacher().getUsername().equals(teacherUsername)) {
-            System.out.println("Преподаватель не авторизован для удаления курса");
+            System.out.println("Teacher is not authorized to delete the course");
             throw new AccessDeniedException("You are not allowed to delete this course");
         }
 
         courseRepository.delete(course);
-        System.out.println("Курс успешно удален: " + course.getTitle());
+        System.out.println("Course successfully deleted: " + course.getTitle());
     }
 
     public List<CourseResponse> getAllCourses() {
-        System.out.println("Получение всех курсов");
+        System.out.println("Retrieving all courses");
         return courseMapper.toResponseList(courseRepository.findAll());
     }
 
     public CourseResponse getCourseById(Long courseId) {
-        System.out.println("Получение курса с ID: " + courseId);
+        System.out.println("Retrieving course with ID: " + courseId);
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found"));
-        System.out.println("Курс найден: " + course.getTitle());
+        System.out.println("Course found: " + course.getTitle());
         return courseMapper.toResponse(course);
     }
 }

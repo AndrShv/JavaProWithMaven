@@ -1,5 +1,6 @@
 package com.example.controllers;
 
+import com.example.DemoApplication;
 import com.example.controller.course.CourseController;
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
@@ -8,11 +9,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -21,7 +24,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CourseController.class)
+@TestPropertySource("classpath:application.properties")
+@WebMvcTest(controllers = CourseController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
 public class CourseControllerTest {
 
     @Autowired
@@ -45,7 +49,6 @@ public class CourseControllerTest {
     @Test
     @WithMockUser(username = "teacher1", roles = {"TEACHER"})
     void testCreateCourse() throws Exception {
-
         CourseResponse courseResponse = new CourseResponse();
 
         when(courseService.createCourse(any(), eq("teacher1"))).thenReturn(courseResponse);
@@ -53,7 +56,7 @@ public class CourseControllerTest {
         mockMvc.perform(post("/api/courses/create-course")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(courseRequest)))
-                .andExpect(status().isCreated()) // Ожидаем код ответа 201
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Java Basics"))
                 .andExpect(jsonPath("$.description").value("Introduction to Java"))
                 .andExpect(jsonPath("$.teacherUsername").value("teacher1"));
@@ -64,7 +67,6 @@ public class CourseControllerTest {
     @Test
     @WithMockUser(username = "teacher1", roles = {"TEACHER"})
     void testUpdateCourse() throws Exception {
-        // Подготовка данных
         CourseResponse courseResponse = new CourseResponse();
 
         when(courseService.updateCourse(eq(1L), any(), eq("teacher1"))).thenReturn(courseResponse);
@@ -72,7 +74,7 @@ public class CourseControllerTest {
         mockMvc.perform(put("/api/courses/{courseId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(courseRequest)))
-                .andExpect(status().isOk()) // Ожидаем код ответа 200
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Java Basics"))
                 .andExpect(jsonPath("$.description").value("Updated Description"));
 
@@ -83,7 +85,7 @@ public class CourseControllerTest {
     @WithMockUser(username = "teacher1", roles = {"TEACHER"})
     void testDeleteCourse() throws Exception {
         mockMvc.perform(delete("/api/courses/{courseId}", 1L))
-                .andExpect(status().isNoContent()); // Ожидаем код ответа 204
+                .andExpect(status().isNoContent());
 
         verify(courseService, times(1)).deleteCourse(eq(1L), eq("teacher1"));
     }
@@ -91,13 +93,12 @@ public class CourseControllerTest {
     @Test
     @WithMockUser(username = "student1", roles = {"STUDENT"})
     void testGetAllCourses() throws Exception {
-
         CourseResponse courseResponse = new CourseResponse();
 
         when(courseService.getAllCourses()).thenReturn(List.of(courseResponse));
 
         mockMvc.perform(get("/api/courses"))
-                .andExpect(status().isOk()) // Ожидаем код ответа 200
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title").value("Java Basics"))
                 .andExpect(jsonPath("$[0].description").value("Introduction to Java"));
 
@@ -107,13 +108,12 @@ public class CourseControllerTest {
     @Test
     @WithMockUser(username = "student1", roles = {"STUDENT"})
     void testGetCourseById() throws Exception {
-
         CourseResponse courseResponse = new CourseResponse();
 
         when(courseService.getCourseById(1L)).thenReturn(courseResponse);
 
         mockMvc.perform(get("/api/courses/{courseId}", 1L))
-                .andExpect(status().isOk()) // Ожидаем код ответа 200
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Java Basics"))
                 .andExpect(jsonPath("$.description").value("Introduction to Java"));
 

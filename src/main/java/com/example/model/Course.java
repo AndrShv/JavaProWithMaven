@@ -35,9 +35,13 @@ public class Course {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Lesson> lessons = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "course_students",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private List<User> students;
 
 
     @PrePersist
