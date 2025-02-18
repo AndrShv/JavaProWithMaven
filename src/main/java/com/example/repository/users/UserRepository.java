@@ -1,6 +1,6 @@
 package com.example.repository.users;
 
-import com.example.model.User;
+import com.example.model.User.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +11,11 @@ public interface UserRepository extends JpaRepository<User, Long>{
     Optional<User> findByUsernameOrEmail(String username, String email);
     Optional<User> findByEmail(String email);
 
+    Optional<User> findById(Long id);
+
+
+    <S extends User> S save(S user);
+    void deleteById(Long id);
     boolean existsByEmail(String email);
 
 }

@@ -2,7 +2,7 @@ package com.example.controller.course;
 
 import com.example.dto.request.LessonRequest;
 import com.example.dto.response.LessonResponse;
-import com.example.model.Lesson;
+import com.example.model.Studing.Lesson;
 import com.example.service.studying.LessonService;
 import org.springframework.web.bind.annotation.*;
 

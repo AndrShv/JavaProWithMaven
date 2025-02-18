@@ -3,8 +3,8 @@ package com.example.services;
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
 import com.example.mappers.CourseMapper;
-import com.example.model.Course;
-import com.example.model.User;
+import com.example.model.Studing.Course;
+import com.example.model.User.User;
 import com.example.rabbitMqConfigs.NotificationService;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.users.UserRepository;
@@ -50,7 +50,7 @@ public class CourseServiceTest {
         request.setTitle("Java Programming");
         request.setDescription("Test description");
 
-        User teacher = new User();
+        User teacher = new User(userId);
         teacher.setUsername("teacher1");
         teacher.setEmail("teacher1@example.com");
 
@@ -96,7 +96,7 @@ public class CourseServiceTest {
         request.setTitle("Updated Java Programming");
         request.setDescription("Updated Test description");
 
-        User teacher = new User();
+        User teacher = new User(userId);
         teacher.setUsername("teacher1");
 
         Course course = new Course();
@@ -119,10 +119,10 @@ public class CourseServiceTest {
 
     @Test
     void testUpdateCourse_NotAuthorized() {
-        User teacher = new User();
+        User teacher = new User(userId);
         teacher.setUsername("teacher1");
 
-        User anotherTeacher = new User();
+        User anotherTeacher = new User(userId);
         anotherTeacher.setUsername("teacher2");
 
         Course course = new Course();
@@ -139,7 +139,7 @@ public class CourseServiceTest {
     @Test
     void testDeleteCourse_Success() {
 
-        User teacher = new User();
+        User teacher = new User(userId);
         teacher.setUsername("teacher1");
 
         Course course = new Course();
@@ -157,10 +157,10 @@ public class CourseServiceTest {
     @Test
     void testDeleteCourse_NotAuthorized() {
 
-        User teacher = new User();
+        User teacher = new User(userId);
         teacher.setUsername("teacher1");
 
-        User anotherTeacher = new User();
+        User anotherTeacher = new User(userId);
         anotherTeacher.setUsername("teacher2");
 
         Course course = new Course();

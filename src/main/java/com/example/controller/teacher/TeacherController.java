@@ -1,6 +1,6 @@
 package com.example.controller.teacher;
 
-import com.example.model.User;
+import com.example.model.User.User;
 import com.example.service.teacher.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeacherController {
     private final TeacherService teacherService;
+    
 
     // Получить студентов по курсу
     @GetMapping("/courses/{courseId}/students")

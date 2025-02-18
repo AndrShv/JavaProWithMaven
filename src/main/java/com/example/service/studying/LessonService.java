@@ -3,8 +3,8 @@ package com.example.service.studying;
 
 import com.example.dto.response.LessonResponse;
 import com.example.mappers.LessonMapper;
-import com.example.model.Course;
-import com.example.model.Lesson;
+import com.example.model.Studing.Course;
+import com.example.model.Studing.Lesson;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.studying.LessonRepository;
 import jakarta.persistence.EntityNotFoundException;

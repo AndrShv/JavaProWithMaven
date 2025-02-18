@@ -1,4 +1,4 @@
-package com.example.model;
+package com.example.model.Tournament;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,22 +9,22 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "teachers")
-public class Teacher {
+@Table(name = "tournament")
+public class Tournament {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String teacherName;
-    @Column(nullable = false, unique = true)
-    private String email;
     @Column(nullable = false)
-    private String password;
+    private String name;
     @Column(nullable = false)
-    private String role = "TEACHER";
+    private String description;
     @Column(nullable = false)
-    private String teachingSubject;
+    private String rules;
     @Column(nullable = false)
-    private String qualification;
+    private String startDate;
+    @Column(nullable = false)
+    private String endDate;
+    @Column(nullable = false)
+    private String participants;
 }

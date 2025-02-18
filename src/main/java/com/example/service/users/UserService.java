@@ -1,6 +1,6 @@
 package com.example.service.users;
 
-import com.example.model.User;
+import com.example.model.User.User;
 import com.example.repository.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;

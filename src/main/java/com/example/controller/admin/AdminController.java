@@ -1,6 +1,6 @@
 package com.example.controller.admin;
 
-import com.example.model.User;
+import com.example.model.User.User;
 import com.example.repository.users.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;

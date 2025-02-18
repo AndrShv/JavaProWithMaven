@@ -1,7 +1,7 @@
 package com.example.mappers;
 
 import com.example.dto.response.LessonResponse;
-import com.example.model.Lesson;
+import com.example.model.Studing.Lesson;
 import org.springframework.stereotype.Component;
 
 @Component

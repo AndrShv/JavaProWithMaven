@@ -3,7 +3,7 @@ package com.example.controller.auth;
 import com.example.dto.response.AuthResponse;
 import com.example.dto.request.LoginRequest;
 import com.example.dto.request.RegisterRequest;
-import com.example.model.User;
+import com.example.model.User.User;
 import com.example.security.jwt.JwtTokenUtil;
 import com.example.service.users.UserService;
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Все поля обязательны");
         }
 
-        User user = new User();
+        User user = new User(userId);
         user.setUsername(request.getUsername());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
@@ -55,4 +55,6 @@ public class AuthController {
 
         return ResponseEntity.ok(new AuthResponse(jwt));
     }
+
+    
 }
