@@ -1,5 +1,6 @@
 package com.example.controller.teacher;
 
+
 import com.example.model.User;
 import com.example.service.teacher.TeacherService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,6 @@ import java.util.List;
 public class TeacherController {
     private final TeacherService teacherService;
 
-    // Получить студентов по курсу
     @GetMapping("/courses/{courseId}/students")
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<List<User>> getStudentsByCourse(@PathVariable Long courseId) {

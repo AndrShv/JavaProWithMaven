@@ -20,14 +20,14 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
     @Column(nullable = false, length = 1000)
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "teacher_id")
+    @JoinColumn(name = "teacher_id", nullable = false)
     private User teacher;
 
     @Column(nullable = false, updatable = false)
@@ -35,14 +35,14 @@ public class Course {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-    @ManyToMany
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "course_students",
             joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id")
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> students;
-
+    private List<User> students = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

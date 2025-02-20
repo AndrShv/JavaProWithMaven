@@ -17,7 +17,7 @@
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source> <!-- Java 21 поддерживается, но лучше перейти на 17 для совместимости -->
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.target>217</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version> <!-- Spring Boot 3.1+ официально поддерживает Java 17 -->
         <spring-doc.version>2.2.0</spring-doc.version>
@@ -75,15 +75,26 @@
             <artifactId>javax.persistence-api</artifactId>
             <version>2.2</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.27</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.5</version>
         </dependency>
+
+
+
 
         <!-- JWT -->
         <dependency>
@@ -219,11 +230,6 @@
         </dependency>
 
         <!-- Reactive Databases -->
-        <dependency>
-            <groupId>dev.miku</groupId>
-            <artifactId>r2dbc-mysql</artifactId>
-            <version>0.8.2.RELEASE</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>

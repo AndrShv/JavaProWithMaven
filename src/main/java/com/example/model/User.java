@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,6 +20,7 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String username;
+
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -28,6 +30,6 @@ public class User {
     @Column(nullable = false)
     private String role = "USER";
 
-    @ManyToMany(mappedBy = "students")
-    private List<Course> courses;
+    @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
+    private List<Course> courses = new ArrayList<>();
 }

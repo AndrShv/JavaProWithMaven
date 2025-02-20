@@ -1,5 +1,6 @@
 package com.example.DB;
 
+
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ public class DatabaseConfiguration {
         dataSourceBuilder.password("1111");
         return dataSourceBuilder.build();
     }
+
 
     @Bean
     public PlatformTransactionManager transactionManager(DataSource dataSource) {
