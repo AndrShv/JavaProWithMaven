@@ -11,9 +11,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 @SpringBootApplication(exclude = {R2dbcAutoConfiguration.class})
 @EntityScan(basePackages = "com.example.model")
 @EnableJpaRepositories(basePackages = "com.example.repository")

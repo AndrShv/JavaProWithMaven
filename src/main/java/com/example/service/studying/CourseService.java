@@ -41,6 +41,7 @@ public class CourseService {
 
         Course course = new Course();
         course.setTitle(request.getTitle());
+
         course.setDescription(request.getDescription());
         course.setTeacher(teacher);
 

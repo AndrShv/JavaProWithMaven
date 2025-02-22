@@ -7,7 +7,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -36,6 +38,12 @@ public class Course {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
+    private LocalDateTime startedTime;
+
+    @Column(nullable = false)
+    private LocalDateTime finishedTime;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "course_students",
@@ -44,11 +52,18 @@ public class Course {
     )
     private List<User> students = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        if (this.startedTime == null) {
+            this.startedTime = LocalDateTime.now();
+        }
     }
+
 
     @PreUpdate
     protected void onUpdate() {
