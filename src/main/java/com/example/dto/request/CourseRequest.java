@@ -10,8 +10,12 @@ public class CourseRequest {
 
     @NotBlank
     private String title;
-
-
     @NotBlank
     private String description;
+    @NotBlank
+    private String theme;
+    @NotBlank
+    private String way;
+    @NotBlank
+    private String finishedTime;
 }

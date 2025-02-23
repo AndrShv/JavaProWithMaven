@@ -38,12 +38,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/notification/send").permitAll()
                         .requestMatchers("/api/send-message").permitAll()
                         .requestMatchers("/api/courses/**").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
 
 

@@ -1,5 +1,7 @@
 package com.example.model;
 
+import com.example.extraConfigs.CourseTheme;
+import com.example.extraConfigs.CourseWay;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,6 +46,17 @@ public class Course {
     @Column(nullable = false)
     private LocalDateTime finishedTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CourseTheme theme;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CourseWay way;
+
+    @Column(nullable = false)
+    private boolean passed;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "course_students",
@@ -52,7 +65,6 @@ public class Course {
     )
     private List<User> students = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
 
 
     @PrePersist

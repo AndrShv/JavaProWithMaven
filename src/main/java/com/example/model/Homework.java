@@ -45,6 +45,10 @@ public class Homework {
     @Column(nullable = false)
     private int countingTries;
 
+    @Column(nullable = false)
+    private int mistakes = 0;
+
+
     @PrePersist
     protected void onCreate() {
         this.doneAtTime = LocalDateTime.now();

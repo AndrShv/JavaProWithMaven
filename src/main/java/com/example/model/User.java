@@ -8,7 +8,6 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 @Entity
 @Getter
 @Setter
@@ -31,6 +30,9 @@ public class User {
     @Column(nullable = false)
     private String role = "USER";
 
+    @Column(nullable = false)
+    private final int MAX_ACHIEVEMENTS = 50;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_achievements",
@@ -49,4 +51,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
     private Set<Course> completedCourses = new HashSet<>();
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Praise> praises = new HashSet<>();
 }

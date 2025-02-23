@@ -32,4 +32,6 @@ public class TeacherController {
         List<User> students = teacherService.getStudentsByCourseAndName(courseId, studentName);
         return ResponseEntity.ok(students);
     }
+
+
 }

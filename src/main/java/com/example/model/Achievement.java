@@ -29,6 +29,7 @@ public class Achievement {
     @Enumerated(EnumType.STRING)
     private AchievementType rarity;
 
+
     @ManyToMany(mappedBy = "achievements", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 }

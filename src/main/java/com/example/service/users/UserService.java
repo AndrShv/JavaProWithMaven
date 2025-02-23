@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLOutput;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -26,7 +28,13 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         System.out.println("Saving user: " + user.getUsername());
+        System.out.println("Saving user: " + user.getEmail());
+        System.out.println("Saving user: " + user.getPassword());
+        System.out.println("Saving user: " + user.getId());
         userRepository.save(user);
         System.out.println("User saved successfully: " + user.getUsername());
+        System.out.println("Saving user: " + user.getEmail());
+        System.out.println("Saving user: " + user.getPassword());
+        System.out.println("Saving user: " + user.getId());
     }
 }

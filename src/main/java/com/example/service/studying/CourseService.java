@@ -2,18 +2,23 @@ package com.example.service.studying;
 
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
+import com.example.extraConfigs.CourseTheme;
+import com.example.extraConfigs.CourseWay;
 import com.example.mappers.CourseMapper;
 import com.example.model.Course;
 import com.example.model.User;
 import com.example.rabbitMqConfigs.NotificationService;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.users.UserRepository;
+import com.example.service.achievements.AchievementService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Service
@@ -29,6 +34,8 @@ public class CourseService {
     @Autowired
     private CourseMapper courseMapper;
 
+    private AchievementService achievementService;
+
     @Autowired
     private NotificationService notificationService;
 
@@ -41,9 +48,29 @@ public class CourseService {
 
         Course course = new Course();
         course.setTitle(request.getTitle());
-
         course.setDescription(request.getDescription());
         course.setTeacher(teacher);
+        course.setStartedTime(LocalDateTime.now());
+
+        if (request.getFinishedTime() != null) {
+            try {
+                course.setFinishedTime(LocalDateTime.parse(request.getFinishedTime()));
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid finishedTime format", e);
+            }
+        } else {
+            throw new IllegalArgumentException("finishedTime cannot be null");
+        }
+        if (request.getTheme() != null && request.getWay() != null) {
+            try {
+                course.setTheme(CourseTheme.valueOf(request.getTheme()));
+                course.setWay(CourseWay.valueOf(request.getWay()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid theme or way value", e);
+            }
+        } else {
+            throw new IllegalArgumentException("Theme and Way cannot be null");
+        }
 
         Course savedCourse = courseRepository.save(course);
         System.out.println("Course successfully saved: " + savedCourse.getTitle());
@@ -98,4 +125,17 @@ public class CourseService {
         System.out.println("Course found: " + course.getTitle());
         return courseMapper.toResponse(course);
     }
+
+    public void completeCourse(Long userId, Long courseId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
+
+        user.getCompletedCourses().add(course);
+        userRepository.save(user);
+
+        achievementService.addAchievementAfterEndingFirstCourse(userId, course);
+        achievementService.completingTenCourse(userId, course);
+        achievementService.completingTwentyFiveCourse(userId, course);
+    }
+
 }

@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -40,7 +42,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        // Проверяем, указан ли username или email
         String loginIdentifier = request.getUsername() != null ? request.getUsername() : request.getEmail();
         if (loginIdentifier == null) {
             return ResponseEntity.badRequest().body("Необходимо указать имя пользователя или email");
@@ -51,8 +52,17 @@ public class AuthController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtTokenUtil.generateToken(loginIdentifier);
-
+        List<String> roles = getRolesForUser(loginIdentifier);
+        String jwt = jwtTokenUtil.generateToken(loginIdentifier, roles);
         return ResponseEntity.ok(new AuthResponse(jwt));
     }
+
+
+    private List<String> getRolesForUser(String username) {
+        if ("admin".equals(username)) {
+            return List.of("ADMIN", "USER");
+        }
+        return List.of("USER");
+    }
+
 }
