@@ -2,6 +2,7 @@ package com.example.model;
 
 import com.example.extraConfigs.CourseTheme;
 import com.example.extraConfigs.CourseWay;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -64,6 +65,10 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> students = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
+    @JsonManagedReference
+    private List<Homework> homeworks;
 
 
 

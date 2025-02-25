@@ -36,7 +36,7 @@ public class PraiseService {
             praise.setMessage(message);
             praiseRepository.save(praise);
 
-            achievementService.checkTeacherFavorite(student.get());
+            achievementService.checkTeacherFavorite(student.get().getId());
         }
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -34,6 +35,7 @@ public class CourseService {
     @Autowired
     private CourseMapper courseMapper;
 
+    @Autowired
     private AchievementService achievementService;
 
     @Autowired
@@ -126,16 +128,39 @@ public class CourseService {
         return courseMapper.toResponse(course);
     }
 
+    public void addUserToCourse(Long userId, Long courseId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<Course> courseOptional = courseRepository.findById(courseId);
+
+        if (userOptional.isPresent() && courseOptional.isPresent()) {
+            User user = userOptional.get();
+            Course course = courseOptional.get();
+            course.getStudents().add(user);
+            user.getCourses().add(course);
+            courseRepository.save(course);
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("User or Course not found");
+        }
+    }
+
     public void completeCourse(Long userId, Long courseId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
 
+
         user.getCompletedCourses().add(course);
         userRepository.save(user);
-
         achievementService.addAchievementAfterEndingFirstCourse(userId, course);
         achievementService.completingTenCourse(userId, course);
         achievementService.completingTwentyFiveCourse(userId, course);
-    }
+        achievementService.finishThreeDifferentCourse(userId, course);
+        achievementService.completeCourseWithoutMistakes(userId, course);
+        achievementService.getTenDifferentAchievements(userId, course);
+        achievementService.getTwentyFiveDifferentAchievements(userId, course);
+        achievementService.getAllAchievements(userId, course);
+        achievementService.checkTeacherFavorite(user.getId());
 
+        System.out.println("User " + user.getUsername() + " has completed course " + course.getTitle());
+    }
 }

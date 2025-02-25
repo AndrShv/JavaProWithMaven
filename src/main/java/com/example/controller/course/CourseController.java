@@ -2,8 +2,13 @@ package com.example.controller.course;
 
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
+import com.example.model.Course;
+import com.example.model.User;
+import com.example.repository.studying.CourseRepository;
+import com.example.repository.users.UserRepository;
 import com.example.service.studying.CourseService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +17,22 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {
 
     private final CourseService courseService;
+    private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public CourseController(CourseService courseService) {
+    public CourseController(CourseService courseService, CourseRepository courseRepository, UserRepository userRepository) {
         this.courseService = courseService;
+        this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/create-course")
@@ -29,6 +40,7 @@ public class CourseController {
     public ResponseEntity<CourseResponse> createCourse(
             @RequestBody @Valid CourseRequest request,
             Principal principal) {
+        log.info("Creating course by teacher: {}", principal.getName());
         String teacherUsername = principal.getName();
         CourseResponse response = courseService.createCourse(request, teacherUsername);
         response.setTitle(request.getTitle());
@@ -36,7 +48,6 @@ public class CourseController {
         response.setTeacherUsername(teacherUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
     @PutMapping("/{courseId}")
     @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<CourseResponse> updateCourse(
@@ -49,6 +60,23 @@ public class CourseController {
         response.setDescription("Updated Description");
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/add-user")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<String> addUserToCourse(@RequestParam Long userId, @RequestParam Long courseId) {
+        Optional<User> user = userRepository.findById(userId);
+        Optional<Course> course = courseRepository.findById(courseId);
+
+        if (user.isPresent() && course.isPresent()) {
+            User u = user.get();
+            Course c = course.get();
+            c.getStudents().add(u);
+            courseRepository.save(c);
+            return ResponseEntity.ok("User added to course.");
+        } else {
+            return ResponseEntity.badRequest().body("User or Course not found.");
+        }
+    }
+
 
     @DeleteMapping("/{courseId}")
     @PreAuthorize("hasRole('TEACHER')")
@@ -64,10 +92,6 @@ public class CourseController {
     @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<List<CourseResponse>> getAllCourses() {
         List<CourseResponse> courses = courseService.getAllCourses();
-        if (!courses.isEmpty()) {
-            courses.get(0).setTitle("Java Basics");
-            courses.get(0).setDescription("Introduction to Java");
-        }
         return ResponseEntity.ok(courses);
     }
 
@@ -75,8 +99,6 @@ public class CourseController {
     @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long courseId) {
         CourseResponse response = courseService.getCourseById(courseId);
-        response.setTitle("Java Basics");
-        response.setDescription("Introduction to Java");
         return ResponseEntity.ok(response);
     }
 }

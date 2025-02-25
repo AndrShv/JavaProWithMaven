@@ -1,13 +1,13 @@
 package com.example.model;
 
 import com.example.extraConfigs.HomeworkStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @Setter
@@ -27,8 +27,9 @@ public class Homework {
     @Column(nullable = false)
     private int grade;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id")
+    @JsonBackReference
     private Course course;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -48,10 +49,24 @@ public class Homework {
     @Column(nullable = false)
     private int mistakes = 0;
 
+    @Column(length = 1000)
+    private String comment;
+
+
+    @ManyToOne
+    @JoinColumn(name = "lesson_id")
+    private Lesson lesson;
+
+
+    public void setLesson(Lesson lesson) {
+        if (lesson != null) {
+            this.course = lesson.getCourse();
+        }
+    }
+
 
     @PrePersist
     protected void onCreate() {
         this.doneAtTime = LocalDateTime.now();
-
     }
 }

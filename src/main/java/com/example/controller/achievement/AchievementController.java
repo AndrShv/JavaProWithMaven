@@ -87,9 +87,7 @@ public class AchievementController {
 
     @PostMapping("/teacher-favorite")
     public ResponseEntity<String> teacherFavorite(@RequestParam Long userId) {
-        User student = new User();
-        student.setId(userId);
-        achievementService.checkTeacherFavorite(student);
+        achievementService.checkTeacherFavorite(userId);
         return ResponseEntity.ok("Achievement checked for Teacher’s Favorite.");
     }
 
