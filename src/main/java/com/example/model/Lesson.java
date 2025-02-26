@@ -27,4 +27,6 @@ public class Lesson {
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Homework> homeworks;
+
+
 }

@@ -1,6 +1,7 @@
 package com.example.model;
 
 import com.example.extraConfigs.AchievementType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,5 +32,6 @@ public class Achievement {
 
 
     @ManyToMany(mappedBy = "achievements", fetch = FetchType.LAZY)
+    @JsonBackReference
     private Set<User> users = new HashSet<>();
 }

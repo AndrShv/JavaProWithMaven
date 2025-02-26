@@ -1,15 +1,13 @@
 package com.example.security.jwt;
 
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import io.jsonwebtoken.security.Keys;
-import javax.crypto.SecretKey;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,12 +25,13 @@ public class JwtTokenUtil {
     }
 
     public String generateToken(String username, List<String> roles) {
-        List<String> prefixedRoles = roles.stream()
-                .map(role -> "ROLE_" + role)
+        List<String> formattedRoles = roles.stream()
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role) // Убеждаемся, что в JWT роли с "ROLE_"
                 .collect(Collectors.toList());
+
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", prefixedRoles)
+                .claim("roles", formattedRoles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -69,5 +68,14 @@ public class JwtTokenUtil {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public void decodeJwt(String token) {
+        Jws<Claims> claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token);
+        System.out.println("Subject: " + claims.getBody().getSubject());
+        System.out.println("Roles: " + claims.getBody().get("roles"));
     }
 }

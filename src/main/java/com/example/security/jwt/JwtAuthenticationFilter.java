@@ -10,9 +10,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -31,16 +31,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = parseJwt(request);
         if (token != null && jwtTokenUtil.validateToken(token)) {
-            String username = jwtTokenUtil.getUsernameFromToken(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            List<String> roles = jwtTokenUtil.getRolesFromToken(token);
-            Collection<? extends GrantedAuthority> authorities = roles.stream()
-                    .map(role -> (GrantedAuthority) () -> role)  // no "ROLE_" prefix here
-                    .collect(Collectors.toList());
+            jwtTokenUtil.decodeJwt(token); // Для отладки
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            List<String> roles = jwtTokenUtil.getRolesFromToken(token);
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            if (userDetails != null) {
+                Collection<? extends GrantedAuthority> authorities = roles.stream()
+                        .map(role -> (GrantedAuthority) () -> role) // Теперь роли остаются с "ROLE_"
+                        .collect(Collectors.toList());
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         chain.doFilter(request, response);
     }

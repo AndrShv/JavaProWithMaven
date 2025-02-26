@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,18 +29,20 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role = "USER";
+    private String role;
 
     @Column(nullable = false)
     private final int MAX_ACHIEVEMENTS = 50;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JsonManagedReference
     @JoinTable(
             name = "user_achievements",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "achievement_id")
     )
     private Set<Achievement> achievements = new HashSet<>();
+
 
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private List<Course> courses;
@@ -54,4 +57,6 @@ public class User {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Praise> praises = new HashSet<>();
+
+
 }

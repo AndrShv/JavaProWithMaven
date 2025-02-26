@@ -2,6 +2,7 @@ package com.example.controller.course;
 
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
+import com.example.model.Achievement;
 import com.example.model.Course;
 import com.example.model.User;
 import com.example.repository.studying.CourseRepository;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -60,8 +62,8 @@ public class CourseController {
         response.setDescription("Updated Description");
         return ResponseEntity.ok(response);
     }
-    @PostMapping("/add-user")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PutMapping("/add-user")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')") // Исправлено
     public ResponseEntity<String> addUserToCourse(@RequestParam Long userId, @RequestParam Long courseId) {
         Optional<User> user = userRepository.findById(userId);
         Optional<Course> course = courseRepository.findById(courseId);
@@ -76,6 +78,22 @@ public class CourseController {
             return ResponseEntity.badRequest().body("User or Course not found.");
         }
     }
+
+    @GetMapping("/user/{userId}/achievements")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    public ResponseEntity<Set<Achievement>> getUserAchievements(@PathVariable Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            Set<Achievement> achievements = user.getAchievements();
+            return ResponseEntity.ok(achievements);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+
+
 
 
     @DeleteMapping("/{courseId}")
