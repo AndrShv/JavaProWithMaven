@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -46,6 +47,12 @@ public class User {
 
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
     private List<Course> courses;
+
+    @ManyToOne
+    @JoinColumn(name = "lesson_id")
+    @JsonBackReference
+    private Lesson lesson;
+
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
