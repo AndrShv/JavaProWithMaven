@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/courses/all").permitAll()  // Разрешаем доступ к этому маршруту без авторизации
                         .requestMatchers("/api/v1/notification/send").permitAll()
                         .requestMatchers("/api/send-message").permitAll()
+                        .requestMatchers("/api/lessons/**").authenticated() // Разрешить всем
                         // Требуем авторизацию для добавления пользователей и других операций с курсами
                         .requestMatchers("/api/courses/add-user").hasRole("TEACHER")
                         .requestMatchers("/api/courses/user/**").authenticated()

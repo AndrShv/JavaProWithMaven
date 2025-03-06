@@ -10,6 +10,8 @@ import com.example.repository.studying.LessonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class LessonService {
@@ -63,5 +65,17 @@ public class LessonService {
     public Lesson getLesson(Long id) {
         return lessonRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
+    }
+
+    public List<Lesson> getLessonsByCourse(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+        return lessonRepository.findByCourse(course);
+    }
+
+    public List<Homework> getHomeworksByLesson(Long lessonId) {
+        Lesson  lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+        return homeworkRepository.findByLesson(lesson);
     }
 }

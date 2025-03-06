@@ -28,7 +28,7 @@ public class Teacher {
     private String password;
 
     @Column(nullable = false)
-    private String role = "TEACHER";
+    private String role;
 
     @Column(nullable = false)
     private String teachingSubject;

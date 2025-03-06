@@ -4,10 +4,12 @@ import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
 import com.example.model.Achievement;
 import com.example.model.Course;
+import com.example.model.Lesson;
 import com.example.model.User;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.users.UserRepository;
 import com.example.service.studying.CourseService;
+import com.example.service.studying.LessonService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +29,14 @@ import java.util.Set;
 public class CourseController {
 
     private final CourseService courseService;
+    private final LessonService lessonService;
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public CourseController(CourseService courseService, CourseRepository courseRepository, UserRepository userRepository) {
+    public CourseController(CourseService courseService, LessonService lessonService, CourseRepository courseRepository, UserRepository userRepository) {
         this.courseService = courseService;
+        this.lessonService = lessonService;
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
     }
@@ -119,4 +123,12 @@ public class CourseController {
         CourseResponse response = courseService.getCourseById(courseId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{courseId}/lessons")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    public ResponseEntity<List<Lesson>> getLessonsByCourse(@PathVariable Long courseId) {
+        List<Lesson> lessons = lessonService.getLessonsByCourse(courseId);
+        return ResponseEntity.ok(lessons);
+    }
+
 }

@@ -3,8 +3,12 @@ package com.example.controller.course;
 import com.example.model.Homework;
 import com.example.model.Lesson;
 import com.example.service.studying.LessonService;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/lessons")
@@ -18,7 +22,7 @@ public class LessonController {
     }
 
     // Создание урока
-    @PostMapping("/{courseId}")
+    @PostMapping(value = "/{courseId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Lesson createLesson(@RequestBody Lesson lesson, @PathVariable Long courseId) {
         return lessonService.createLesson(courseId, lesson);
     }
@@ -37,7 +41,6 @@ public class LessonController {
 
     // Оценка домашнего задания
     @PutMapping("/{lessonId}/homework/{homeworkId}/grade")
-
     public Homework gradeHomework(@PathVariable Long homeworkId, @RequestParam int grade) {
         return lessonService.gradeHomework(homeworkId, grade);
     }
@@ -47,4 +50,12 @@ public class LessonController {
     public Homework commentHomework(@PathVariable Long homeworkId, @RequestParam String comment) {
         return lessonService.commentHomework(homeworkId, comment);
     }
+
+    @GetMapping("/{lessonId}/homeworks")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    public ResponseEntity<List<Homework>> getHomeworksByLesson(@PathVariable Long lessonId) {
+        List<Homework> homeworks = lessonService.getHomeworksByLesson(lessonId);
+        return ResponseEntity.ok(homeworks);
+    }
+
 }
