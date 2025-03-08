@@ -16,6 +16,7 @@ public class CourseMapper {
         courseResponse.setTitle(course.getTitle());
         courseResponse.setDescription(course.getDescription());
         courseResponse.setTeacherUsername(course.getTeacher().getUsername());
+        courseResponse.setTeacherEmail(course.getTeacherEmail());
         courseResponse.setCreatedAt(course.getCreatedAt());
         return courseResponse;
     }

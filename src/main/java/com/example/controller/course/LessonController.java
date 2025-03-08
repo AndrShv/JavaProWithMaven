@@ -54,8 +54,8 @@ public class LessonController {
     @GetMapping("/{lessonId}/homeworks")
     @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<List<Homework>> getHomeworksByLesson(@PathVariable Long lessonId) {
-        List<Homework> homeworks = lessonService.getHomeworksByLesson(lessonId);
-        return ResponseEntity.ok(homeworks);
+        List<Homework> homeworks = lessonService.getHomeworksForLesson(lessonId);
+        return ResponseEntity.ok(homeworks); // Отправляем список домашних заданий
     }
 
 }

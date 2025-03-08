@@ -1,5 +1,6 @@
 package com.example.service.studying;
 
+import com.example.extraConfigs.CourseWay;
 import com.example.extraConfigs.HomeworkStatus;
 import com.example.model.Course;
 import com.example.model.Homework;
@@ -10,6 +11,8 @@ import com.example.repository.studying.LessonRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,13 +38,43 @@ public class LessonService {
     }
 
     // Создание домашнего задания для урока
+    // Создание домашнего задания
     public Homework createHomework(Long lessonId, Homework homework) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
+        Course course = courseRepository.findById(lesson.getCourse().getId())
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        System.out.println("Found lesson: " + lesson.getTitle());
         homework.setLesson(lesson);
         homework.setStatus(HomeworkStatus.IN_PROGRESS);
-        return homeworkRepository.save(homework);
+        homework.setDoneAtTime(LocalDateTime.now());
+
+        Homework savedHomework = homeworkRepository.save(homework);
+
+        lesson.getHomeworks().add(savedHomework);
+        lessonRepository.save(lesson);
+
+        System.out.println("Saved Homework: " + savedHomework);
+        System.out.println("Homework lesson: " + savedHomework.getLesson());
+
+        return savedHomework;
     }
+
+    public List<Homework> getHomeworksForLesson(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+        System.out.println("Found lesson: " + lesson.getTitle());
+        return homeworkRepository.findByLesson(lesson);
+    }
+    public List<Homework> getHomeworksByLessonId(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+        System.out.println("Lesson found: " + lesson.getTitle());
+        return lesson.getHomeworks();
+    }
+
+
 
 
     // Оценка домашнего задания
@@ -73,9 +106,5 @@ public class LessonService {
         return lessonRepository.findByCourse(course);
     }
 
-    public List<Homework> getHomeworksByLesson(Long lessonId) {
-        Lesson  lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new RuntimeException("Lesson not found"));
-        return homeworkRepository.findByLesson(lesson);
-    }
+
 }

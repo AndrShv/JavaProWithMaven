@@ -43,15 +43,17 @@ public class CourseService {
 
     public CourseResponse createCourse(CourseRequest request, String teacherUsername) {
         System.out.println("Start creating a teacher course: " + teacherUsername);
+        System.out.println("Searching for teacher: " + teacherUsername);
         User teacher = userRepository.findByUsername(teacherUsername)
                 .orElseThrow(() -> new EntityNotFoundException("Teacher not found"));
-
+        System.out.println("Teacher found: " + teacher.getUsername() + " (ID: " + teacher.getId() + ")");
         System.out.println("Teacher found: " + teacher.getUsername());
 
         Course course = new Course();
         course.setTitle(request.getTitle());
         course.setDescription(request.getDescription());
         course.setTeacher(teacher);
+        course.setTeacherEmail(teacher.getEmail());
         course.setStartedTime(LocalDateTime.now());
 
         if (request.getFinishedTime() != null) {
@@ -80,6 +82,7 @@ public class CourseService {
         String notificationText = "A new course has been created: " + savedCourse.getTitle();
         notificationService.sendAsyncNotification(teacher.getEmail(), "New Course", notificationText);
         System.out.println("Notification sent");
+
 
         return courseMapper.toResponse(savedCourse);
     }

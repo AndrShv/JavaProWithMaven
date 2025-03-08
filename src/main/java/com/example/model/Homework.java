@@ -53,9 +53,10 @@ public class Homework {
     private String comment;
 
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "lesson_id")
     private Lesson lesson;
+
 
 
     public void setLesson(Lesson lesson) {
