@@ -18,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Collections;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -41,10 +40,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/send-message").permitAll()
                         .requestMatchers("/api/lessons/**").authenticated() // Разрешить всем
                         // Требуем авторизацию для добавления пользователей и других операций с курсами
-                        .requestMatchers("/api/courses/add-user").hasRole("TEACHER")
+                        .requestMatchers("/api/courses/add-user").hasAuthority("ROLE_TEACHER")
                         .requestMatchers("/api/courses/user/**").authenticated()
                         .requestMatchers("/api/courses/**").authenticated()
-                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         // Для всех остальных запросов — нужно быть авторизованным
                         .anyRequest().authenticated()
                 )

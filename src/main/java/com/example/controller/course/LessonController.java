@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/lessons")
-@PreAuthorize("hasRole('TEACHER')")
+@PreAuthorize("hasAuthority('ROLE_TEACHER')")
 public class LessonController {
 
     private final LessonService lessonService;
@@ -52,10 +52,10 @@ public class LessonController {
     }
 
     @GetMapping("/{lessonId}/homeworks")
-    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_STUDENT') or hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Homework>> getHomeworksByLesson(@PathVariable Long lessonId) {
         List<Homework> homeworks = lessonService.getHomeworksForLesson(lessonId);
-        return ResponseEntity.ok(homeworks); // Отправляем список домашних заданий
+        return ResponseEntity.ok(homeworks);
     }
 
 }

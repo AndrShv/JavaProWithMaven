@@ -22,7 +22,6 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 @Slf4j
 @RestController
 @RequestMapping("/api/courses")
@@ -42,7 +41,7 @@ public class CourseController {
     }
 
     @PostMapping("/create-course")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public ResponseEntity<CourseResponse> createCourse(
             @RequestBody @Valid CourseRequest request,
             Principal principal) {
@@ -54,8 +53,9 @@ public class CourseController {
         response.setTeacherUsername(teacherUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @PutMapping("/{courseId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public ResponseEntity<CourseResponse> updateCourse(
             @PathVariable Long courseId,
             @RequestBody @Valid CourseRequest request,
@@ -66,8 +66,9 @@ public class CourseController {
         response.setDescription("Updated Description");
         return ResponseEntity.ok(response);
     }
+
     @PutMapping("/add-user")
-    @PreAuthorize("hasAuthority('ROLE_TEACHER')") // Исправлено
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public ResponseEntity<String> addUserToCourse(@RequestParam Long userId, @RequestParam Long courseId) {
         Optional<User> user = userRepository.findById(userId);
         Optional<Course> course = courseRepository.findById(courseId);
@@ -84,7 +85,7 @@ public class CourseController {
     }
 
     @GetMapping("/user/{userId}/achievements")
-    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Set<Achievement>> getUserAchievements(@PathVariable Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
@@ -96,12 +97,8 @@ public class CourseController {
         }
     }
 
-
-
-
-
     @DeleteMapping("/{courseId}")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public ResponseEntity<Void> deleteCourse(
             @PathVariable Long courseId,
             Principal principal) {
@@ -111,24 +108,24 @@ public class CourseController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_STUDENT') or hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<CourseResponse>> getAllCourses() {
         List<CourseResponse> courses = courseService.getAllCourses();
         return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/{courseId}")
-    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_STUDENT') or hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long courseId) {
         CourseResponse response = courseService.getCourseById(courseId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{courseId}/lessons")
-    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_STUDENT') or hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<Lesson>> getLessonsByCourse(@PathVariable Long courseId) {
         List<Lesson> lessons = lessonService.getLessonsByCourse(courseId);
         return ResponseEntity.ok(lessons);
     }
-
 }
+

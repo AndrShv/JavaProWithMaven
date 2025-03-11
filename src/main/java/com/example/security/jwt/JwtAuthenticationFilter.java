@@ -31,16 +31,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = parseJwt(request);
         if (token != null && jwtTokenUtil.validateToken(token)) {
-            jwtTokenUtil.decodeJwt(token); // Для отладки
+            jwtTokenUtil.decodeJwt(token);
 
             String username = jwtTokenUtil.getUsernameFromToken(token);
             List<String> roles = jwtTokenUtil.getRolesFromToken(token);
+
+            System.out.println("Roles extracted from token: " + roles);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (userDetails != null) {
                 Collection<? extends GrantedAuthority> authorities = roles.stream()
-                        .map(role -> (GrantedAuthority) () -> role) // Теперь роли остаются с "ROLE_"
+                        .map(role -> (GrantedAuthority) () -> role)
                         .collect(Collectors.toList());
 
                 UsernamePasswordAuthenticationToken authentication =
@@ -51,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
+
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
