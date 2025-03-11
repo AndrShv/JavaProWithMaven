@@ -62,6 +62,7 @@ public class Homework {
     public void setLesson(Lesson lesson) {
         if (lesson != null) {
             this.course = lesson.getCourse();
+            this.lesson = lesson;
         }
     }
 

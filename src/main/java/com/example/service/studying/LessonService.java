@@ -8,6 +8,7 @@ import com.example.model.Lesson;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.studying.HomeworkRepository;
 import com.example.repository.studying.LessonRepository;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +66,7 @@ public class LessonService {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
         System.out.println("Found lesson: " + lesson.getTitle());
+        Hibernate.initialize(lesson.getHomeworks());
         return homeworkRepository.findByLesson(lesson);
     }
     public List<Homework> getHomeworksByLessonId(Long lessonId) {
