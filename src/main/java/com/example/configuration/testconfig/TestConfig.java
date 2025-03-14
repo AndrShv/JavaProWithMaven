@@ -1,7 +1,6 @@
 package com.example.configuration.testconfig;
 
 
-import org.mockito.Mock;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

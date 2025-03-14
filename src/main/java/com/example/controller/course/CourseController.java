@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -68,7 +69,7 @@ public class CourseController {
     }
 
     @PutMapping("/add-user")
-    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
+    @PreAuthorize("hasRole('TEACHER')")
     public ResponseEntity<String> addUserToCourse(@RequestParam Long userId, @RequestParam Long courseId) {
         Optional<User> user = userRepository.findById(userId);
         Optional<Course> course = courseRepository.findById(courseId);
@@ -83,6 +84,12 @@ public class CourseController {
             return ResponseEntity.badRequest().body("User or Course not found.");
         }
     }
+    //test get method
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        return ResponseEntity.ok(authentication);
+    }
+
 
     @GetMapping("/user/{userId}/achievements")
     @PreAuthorize("hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
