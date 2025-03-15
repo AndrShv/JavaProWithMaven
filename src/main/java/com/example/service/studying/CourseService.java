@@ -14,8 +14,10 @@ import com.example.service.achievements.AchievementService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -131,27 +133,23 @@ public class CourseService {
         return courseMapper.toResponse(course);
     }
 
+    @Transactional
     public void addUserToCourse(Long userId, Long courseId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        Optional<Course> courseOptional = courseRepository.findById(courseId);
-
-        if (userOptional.isPresent() && courseOptional.isPresent()) {
-            User user = userOptional.get();
-            Course course = courseOptional.get();
-            course.getStudents().add(user);
-            user.getCourses().add(course);
-            courseRepository.save(course);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("User or Course not found");
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        if (course.getStudents().contains(user)) {
+            throw new IllegalStateException("User is already enrolled in this course");
         }
+
+        course.getStudents().add(user);
+        courseRepository.save(course);
     }
 
     public void completeCourse(Long userId, Long courseId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
-
-
         user.getCompletedCourses().add(course);
         userRepository.save(user);
         achievementService.addAchievementAfterEndingFirstCourse(userId, course);

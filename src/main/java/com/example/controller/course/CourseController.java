@@ -68,22 +68,13 @@ public class CourseController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/add-user")
-    @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<String> addUserToCourse(@RequestParam Long userId, @RequestParam Long courseId) {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<Course> course = courseRepository.findById(courseId);
-
-        if (user.isPresent() && course.isPresent()) {
-            User u = user.get();
-            Course c = course.get();
-            c.getStudents().add(u);
-            courseRepository.save(c);
-            return ResponseEntity.ok("User added to course.");
-        } else {
-            return ResponseEntity.badRequest().body("User or Course not found.");
-        }
+    @PostMapping("/{courseId}/addUser/{userId}")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> addUserToCourse(@PathVariable Long courseId, @PathVariable Long userId) {
+        courseService.addUserToCourse(userId, courseId);
+        return ResponseEntity.ok("User added to course successfully");
     }
+
     //test get method
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {

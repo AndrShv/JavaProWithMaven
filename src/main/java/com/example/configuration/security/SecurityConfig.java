@@ -40,7 +40,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/send-message").permitAll()
                         .requestMatchers("/api/lessons/**").authenticated() // Разрешить всем
                         // Требуем авторизацию для добавления пользователей и других операций с курсами
-                        .requestMatchers("/api/courses/add-user").hasAuthority("ROLE_TEACHER")
                         .requestMatchers("/api/courses/user/**").authenticated()
                         .requestMatchers("/api/courses/**").authenticated()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")

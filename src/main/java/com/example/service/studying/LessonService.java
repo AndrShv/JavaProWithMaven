@@ -62,19 +62,11 @@ public class LessonService {
         return savedHomework;
     }
 
-    public List<Homework> getHomeworksForLesson(Long lessonId) {
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new RuntimeException("Lesson not found"));
-        System.out.println("Found lesson: " + lesson.getTitle());
-        Hibernate.initialize(lesson.getHomeworks());
-        return lesson.getHomeworks();
-    }
-
-
     public List<Homework> getHomeworksByLessonId(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
         System.out.println("Lesson found: " + lesson.getTitle());
+        Hibernate.initialize(lesson.getHomeworks());
         return lesson.getHomeworks();
     }
 
