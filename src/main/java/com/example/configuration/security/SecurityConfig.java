@@ -3,6 +3,7 @@ package com.example.configuration.security;
 import com.example.security.jwt.JwtAuthenticationFilter;
 import com.example.security.jwt.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -40,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/send-message").permitAll()
                         .requestMatchers("/api/lessons/**").authenticated() // Разрешить всем
                         // Требуем авторизацию для добавления пользователей и других операций с курсами
+                        .requestMatchers("/api/courses/add-user").hasAuthority("ROLE_TEACHER")
                         .requestMatchers("/api/courses/user/**").authenticated()
                         .requestMatchers("/api/courses/**").authenticated()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
@@ -60,13 +62,16 @@ public class SecurityConfig {
         return new ProviderManager(Collections.singletonList(authProvider));
     }
 
+
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    @Qualifier("securityPasswordEncoder")
+    public PasswordEncoder securityPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
+    @Bean(name = "SecurityConfigJwtAuthenticationFilter")
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtTokenUtil, userDetailsService);
     }
+
 }

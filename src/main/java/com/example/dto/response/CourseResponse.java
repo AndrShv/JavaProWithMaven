@@ -16,6 +16,7 @@ public class CourseResponse {
     private String teacherUsername;
     private String teacherEmail;
     private LocalDateTime startedTime;
+    private LocalDateTime createdAt;
     private LocalDateTime finishedTime;
     private String theme;
     private String way;
