@@ -1,0 +1,8 @@
+db.users.insertOne({
+    "admin": "shcolnik2"
+    "age": "16"
+    })
+
+
+    spring.rabbitmq.host=rabbitmq:3-management
+    172.17.0.3

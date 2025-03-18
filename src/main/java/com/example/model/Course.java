@@ -1,0 +1,95 @@
+package com.example.model;
+
+import com.example.extraConfigs.CourseTheme;
+import com.example.extraConfigs.CourseWay;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "courses")
+public class Course {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false, length = 1000)
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "teacher_id", nullable = false)
+    private User teacher;
+
+    @Column(nullable = false)
+    private String teacherEmail;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    private LocalDateTime startedTime;
+
+    @Column(nullable = false)
+    private LocalDateTime finishedTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CourseTheme theme;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CourseWay way;
+
+    @Column(nullable = false)
+    private boolean passed;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "course_students",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnore
+    private List<User> students = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
+    @JsonManagedReference
+    private List<Homework> homeworks;
+
+
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        if (this.startedTime == null) {
+            this.startedTime = LocalDateTime.now();
+        }
+    }
+
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+}
