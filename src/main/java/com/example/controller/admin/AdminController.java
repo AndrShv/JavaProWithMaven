@@ -27,6 +27,7 @@ public class AdminController {
     public AdminController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
     @Transactional
     @PutMapping("/change-role/{userId}")
     public void changeUserRole(Long userId, String newRole) {
@@ -49,23 +50,16 @@ public class AdminController {
     @Transactional
     @PostMapping("/make-teacher/{userId}")
     public ResponseEntity<?> makeTeacher(@PathVariable Long userId, @AuthenticationPrincipal UserDetails currentUser) {
-
         if (!currentUser.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied: You do not have permission to perform this action.");
         }
-
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-
-
         if (user.getRole().contains("TEACHER")) {
             return ResponseEntity.badRequest().body("User is already a teacher");
         }
-
         user.setRole("TEACHER");
         userRepository.save(user);
-
         String jwt = jwtTokenUtil.generateToken(user.getUsername(), List.of(user.getRole()));
-
         return ResponseEntity.ok(new AuthResponse(jwt));
     }
 
@@ -74,6 +68,4 @@ public class AdminController {
         List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users);
     }
-
-
 }
