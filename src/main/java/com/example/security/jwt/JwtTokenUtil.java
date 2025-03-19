@@ -26,7 +26,7 @@ public class JwtTokenUtil {
 
     public String generateToken(String username, List<String> roles) {
         List<String> formattedRoles = roles.stream()
-                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role) // Убеждаемся, что в JWT роли с "ROLE_"
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
                 .collect(Collectors.toList());
 
         return Jwts.builder()
