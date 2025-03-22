@@ -1,12 +1,17 @@
 package com.example.controller.course;
 
+import com.example.dto.request.HomeworkRequest;
+import com.example.dto.response.HomeworkResponse;
 import com.example.model.Homework;
 import com.example.model.Lesson;
 import com.example.service.studying.LessonService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 
 import java.util.List;
 
@@ -16,6 +21,7 @@ import java.util.List;
 public class LessonController {
 
     private final LessonService lessonService;
+
 
     public LessonController(LessonService lessonService) {
         this.lessonService = lessonService;
@@ -35,8 +41,19 @@ public class LessonController {
 
     // Создание домашнего задания для урока
     @PostMapping("/{lessonId}/homework")
-    public Homework createHomework(@PathVariable Long lessonId, @RequestBody Homework homework) {
-        return lessonService.createHomework(lessonId, homework);
+    public HomeworkResponse createHomework(@PathVariable Long lessonId, @RequestBody HomeworkRequest homeworkRequest) {
+        Homework homework = lessonService.createHomework(lessonId, homeworkRequest);
+
+        HomeworkResponse response = new HomeworkResponse();
+        response.setId(homework.getId());
+        response.setTitle(homework.getTitle());
+        response.setDescription(homework.getDescription());
+        response.setDoneAtTime(homework.getDoneAtTime());
+        response.setLessonId(homework.getLesson().getId());
+        response.setGrade(homework.getGrade());
+        response.setComment(homework.getComment());
+
+        return response;
     }
 
     // Оценка домашнего задания

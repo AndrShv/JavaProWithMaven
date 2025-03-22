@@ -1,6 +1,6 @@
 package com.example.service.studying;
 
-import com.example.extraConfigs.CourseWay;
+import com.example.dto.request.HomeworkRequest;
 import com.example.extraConfigs.HomeworkStatus;
 import com.example.model.Course;
 import com.example.model.Homework;
@@ -12,8 +12,8 @@ import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,29 +38,39 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
 
-    // Создание домашнего задания для урока
-    // Создание домашнего задания
-    public Homework createHomework(Long lessonId, Homework homework) {
+    public Homework createHomework(Long lessonId, HomeworkRequest homeworkRequest) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
-        Course course = courseRepository.findById(lesson.getCourse().getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-
-        System.out.println("Found lesson: " + lesson.getTitle());
-        homework.setLesson(lesson);
+        if (homeworkRequest.getTitle() == null || homeworkRequest.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Homework title cannot be null or empty");
+        }
+        if (homeworkRequest.getDescription() == null || homeworkRequest.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Homework description cannot be null or empty");
+        }
+        Homework homework = new Homework();
+        homework.setTitle(homeworkRequest.getTitle());
+        homework.setDescription(homeworkRequest.getDescription());
         homework.setStatus(HomeworkStatus.IN_PROGRESS);
-        homework.setDoneAtTime(LocalDateTime.now());
+        homework.setCountingTries(0);
+        homework.setMistakes(0);
+        homework.setLesson(lesson);
+        homework.setGrade(0);
+
+        if (homeworkRequest.getDoneAtTime() != null && !homeworkRequest.getDoneAtTime().isEmpty()) {
+            homework.setDoneAtTime(LocalDateTime.parse(homeworkRequest.getDoneAtTime()));
+        } else {
+            homework.setDoneAtTime(LocalDateTime.now());
+        }
 
         Homework savedHomework = homeworkRepository.save(homework);
-
         lesson.getHomeworks().add(savedHomework);
         lessonRepository.save(lesson);
 
-        System.out.println("Saved Homework: " + savedHomework);
-        System.out.println("Homework lesson: " + savedHomework.getLesson());
-
         return savedHomework;
     }
+
+
+
 
     public List<Homework> getHomeworksByLessonId(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
