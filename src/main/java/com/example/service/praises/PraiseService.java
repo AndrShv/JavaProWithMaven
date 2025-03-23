@@ -6,7 +6,7 @@ import com.example.model.User;
 import com.example.repository.praises.PraiseRepository;
 import com.example.repository.users.TeacherRepository;
 import com.example.repository.users.UserRepository;
-import com.example.service.achievements.AchievementService;
+import com.example.service.achievements.AchievementCheckService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,13 +16,13 @@ public class PraiseService {
     private final PraiseRepository praiseRepository;
     private final UserRepository userRepository;
     private final TeacherRepository teacherRepository;
-    private final AchievementService achievementService;
+    private final AchievementCheckService achievementCheckService;
 
-    public PraiseService(PraiseRepository praiseRepository, UserRepository userRepository, TeacherRepository teacherRepository, AchievementService achievementService) {
+    public PraiseService(PraiseRepository praiseRepository, UserRepository userRepository, TeacherRepository teacherRepository, AchievementCheckService achievementCheckService) {
         this.praiseRepository = praiseRepository;
         this.userRepository = userRepository;
         this.teacherRepository = teacherRepository;
-        this.achievementService = achievementService;
+        this.achievementCheckService = achievementCheckService;
     }
 
     public void givePraise(Long teacherId, Long studentId, String message) {
@@ -36,7 +36,7 @@ public class PraiseService {
             praise.setMessage(message);
             praiseRepository.save(praise);
 
-            achievementService.checkTeacherFavorite(student.get().getId());
+            achievementCheckService.checkTeacherFavorite(student.get().getId());
         }
     }
 }

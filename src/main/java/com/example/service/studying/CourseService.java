@@ -10,7 +10,7 @@ import com.example.model.User;
 import com.example.rabbitMqConfigs.NotificationService;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.users.UserRepository;
-import com.example.service.achievements.AchievementService;
+import com.example.service.achievements.AchievementCheckService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,18 +38,15 @@ public class CourseService {
     private CourseMapper courseMapper;
 
     @Autowired
-    private AchievementService achievementService;
-
+    private AchievementCheckService achievementCheckService;
     @Autowired
     private NotificationService notificationService;
 
     public CourseResponse createCourse(CourseRequest request, String teacherUsername) {
         System.out.println("Start creating a teacher course: " + teacherUsername);
-        System.out.println("Searching for teacher: " + teacherUsername);
+
         User teacher = userRepository.findByUsername(teacherUsername)
                 .orElseThrow(() -> new EntityNotFoundException("Teacher not found"));
-        System.out.println("Teacher found: " + teacher.getUsername() + " (ID: " + teacher.getId() + ")");
-        System.out.println("Teacher found: " + teacher.getUsername());
 
         Course course = new Course();
         course.setTitle(request.getTitle());
@@ -57,6 +54,7 @@ public class CourseService {
         course.setTeacher(teacher);
         course.setTeacherEmail(teacher.getEmail());
         course.setStartedTime(LocalDateTime.now());
+
 
         if (request.getFinishedTime() != null) {
             try {
@@ -67,6 +65,8 @@ public class CourseService {
         } else {
             throw new IllegalArgumentException("finishedTime cannot be null");
         }
+
+
         if (request.getTheme() != null && request.getWay() != null) {
             try {
                 course.setTheme(CourseTheme.valueOf(request.getTheme()));
@@ -77,17 +77,20 @@ public class CourseService {
         } else {
             throw new IllegalArgumentException("Theme and Way cannot be null");
         }
-
         Course savedCourse = courseRepository.save(course);
         System.out.println("Course successfully saved: " + savedCourse.getTitle());
-
+        CourseResponse response = courseMapper.toResponse(savedCourse);
+        response.setStartedTime(savedCourse.getStartedTime());
+        response.setFinishedTime(savedCourse.getFinishedTime());
+        response.setTheme(savedCourse.getTheme().toString());
+        response.setWay(savedCourse.getWay().toString());
         String notificationText = "A new course has been created: " + savedCourse.getTitle();
         notificationService.sendAsyncNotification(teacher.getEmail(), "New Course", notificationText);
         System.out.println("Notification sent");
 
-
-        return courseMapper.toResponse(savedCourse);
+        return response;
     }
+
 
     public CourseResponse updateCourse(Long courseId, CourseRequest request, String teacherUsername) {
         System.out.println("Starting course update with ID: " + courseId + " for teacher: " + teacherUsername);
@@ -152,15 +155,13 @@ public class CourseService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
         user.getCompletedCourses().add(course);
         userRepository.save(user);
-        achievementService.addAchievementAfterEndingFirstCourse(userId, course);
-        achievementService.completingTenCourse(userId, course);
-        achievementService.completingTwentyFiveCourse(userId, course);
-        achievementService.finishThreeDifferentCourse(userId, course);
-        achievementService.completeCourseWithoutMistakes(userId, course);
-        achievementService.getTenDifferentAchievements(userId, course);
-        achievementService.getTwentyFiveDifferentAchievements(userId, course);
-        achievementService.getAllAchievements(userId, course);
-        achievementService.checkTeacherFavorite(user.getId());
+        achievementCheckService.achievementAfterEndingFirstCourse(userId, course.getId());
+        achievementCheckService.finishThreeDifferentCourses(userId, course.getId());
+        achievementCheckService.completeCourseWithoutMistakes(userId, course.getId());
+        achievementCheckService.getTenDifferentAchievements(userId);
+        achievementCheckService.getTwentyFiveDifferentAchievements(userId);
+        achievementCheckService.getAllAchievements(userId);
+        achievementCheckService.checkTeacherFavorite(user.getId());
 
         System.out.println("User " + user.getUsername() + " has completed course " + course.getTitle());
     }

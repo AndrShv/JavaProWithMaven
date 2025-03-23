@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class HomeworkRequest {
+    private String title;
     private String description;
     private String status;
-    private String dueDate;
+    private String doneAtTime;
 }
