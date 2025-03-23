@@ -22,7 +22,6 @@ public class LessonController {
 
     private final LessonService lessonService;
 
-
     public LessonController(LessonService lessonService) {
         this.lessonService = lessonService;
     }

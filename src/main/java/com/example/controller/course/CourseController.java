@@ -30,14 +30,12 @@ public class CourseController {
 
     private final CourseService courseService;
     private final LessonService lessonService;
-    private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public CourseController(CourseService courseService, LessonService lessonService, CourseRepository courseRepository, UserRepository userRepository) {
+    public CourseController(CourseService courseService, LessonService lessonService, UserRepository userRepository) {
         this.courseService = courseService;
         this.lessonService = lessonService;
-        this.courseRepository = courseRepository;
         this.userRepository = userRepository;
     }
 

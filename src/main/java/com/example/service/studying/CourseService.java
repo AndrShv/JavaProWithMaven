@@ -10,7 +10,7 @@ import com.example.model.User;
 import com.example.rabbitMqConfigs.NotificationService;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.users.UserRepository;
-import com.example.service.achievements.AchievementService;
+import com.example.service.achievements.AchievementCheckService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +38,7 @@ public class CourseService {
     private CourseMapper courseMapper;
 
     @Autowired
-    private AchievementService achievementService;
-
+    private AchievementCheckService achievementCheckService;
     @Autowired
     private NotificationService notificationService;
 
@@ -156,15 +155,13 @@ public class CourseService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
         user.getCompletedCourses().add(course);
         userRepository.save(user);
-        achievementService.addAchievementAfterEndingFirstCourse(userId, course);
-        achievementService.completingTenCourse(userId, course);
-        achievementService.completingTwentyFiveCourse(userId, course);
-        achievementService.finishThreeDifferentCourse(userId, course);
-        achievementService.completeCourseWithoutMistakes(userId, course);
-        achievementService.getTenDifferentAchievements(userId, course);
-        achievementService.getTwentyFiveDifferentAchievements(userId, course);
-        achievementService.getAllAchievements(userId, course);
-        achievementService.checkTeacherFavorite(user.getId());
+        achievementCheckService.achievementAfterEndingFirstCourse(userId, course.getId());
+        achievementCheckService.finishThreeDifferentCourses(userId, course.getId());
+        achievementCheckService.completeCourseWithoutMistakes(userId, course.getId());
+        achievementCheckService.getTenDifferentAchievements(userId);
+        achievementCheckService.getTwentyFiveDifferentAchievements(userId);
+        achievementCheckService.getAllAchievements(userId);
+        achievementCheckService.checkTeacherFavorite(user.getId());
 
         System.out.println("User " + user.getUsername() + " has completed course " + course.getTitle());
     }
