@@ -55,6 +55,7 @@ public class AchievementCheckService {
                     AchievementType.COMMON,
                     "Complete your first course");
             achievementRepository.save(achievement);
+            userRepository.save(user.get());
             achievementCreationService.addAchievementToUser(userId, achievement);
         }
     }
@@ -67,6 +68,7 @@ public class AchievementCheckService {
                     AchievementType.COMMON,
                     "Complete 10 courses");
             achievementRepository.save(achievement);
+            userRepository.save(user.get());
             achievementCreationService.addAchievementToUser(userId, achievement);
 
         }
@@ -86,6 +88,7 @@ public class AchievementCheckService {
                         AchievementType.RARE,
                         "Complete 3 different courses");
                 achievementRepository.save(achievement);
+                userRepository.save(user.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
@@ -103,6 +106,7 @@ public class AchievementCheckService {
                         AchievementType.LEGENDARY,
                         "Complete a course without making a single mistake on the tests");
                 achievementRepository.save(achievement);
+                userRepository.save(user.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
@@ -120,6 +124,7 @@ public class AchievementCheckService {
                         AchievementType.COMMON,
                         "Complete your first homework on max grade");
                 achievementRepository.save(achievement);
+                userRepository.save(user.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
 
             }
@@ -145,6 +150,7 @@ public class AchievementCheckService {
                             AchievementType.COMMON,
                             "Complete 5 homeworks in one day");
                     achievementRepository.save(achievement);
+                    userRepository.save(user.get());
                     achievementCreationService.addAchievementToUser(userId, achievement);
 
                 }
@@ -166,6 +172,7 @@ public class AchievementCheckService {
                         AchievementType.COMMON,
                         "Complete 3 homeworks in one day");
                 achievementRepository.save(achievement);
+                userRepository.save(user.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
@@ -181,6 +188,8 @@ public class AchievementCheckService {
                         AchievementType.EPIC,
                         "Complete 10 achievements");
                 achievementRepository.save(achievement);
+                userRepository.save(user);
+
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
@@ -196,6 +205,7 @@ public class AchievementCheckService {
                         AchievementType.LEGENDARY,
                         "Complete 25 achievements");
                 achievementRepository.save(achievement);
+                userRepository.save(user);
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
@@ -211,6 +221,7 @@ public class AchievementCheckService {
                         AchievementType.LEGENDARY,
                         "Complete all achievements");
                 achievementRepository.save(achievement);
+                userRepository.save(user);
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }

@@ -10,4 +10,5 @@ public class HomeworkRequest {
     private String description;
     private String status;
     private String doneAtTime;
+    private Long userId;
 }

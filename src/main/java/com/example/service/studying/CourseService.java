@@ -96,37 +96,74 @@ public class CourseService {
         System.out.println("Starting course update with ID: " + courseId + " for teacher: " + teacherUsername);
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found"));
-
         if (!course.getTeacher().getUsername().equals(teacherUsername)) {
             System.out.println("Teacher is not authorized to update the course");
             throw new AccessDeniedException("You are not allowed to update this course");
         }
+        if (request.getTitle() != null) {
+            course.setTitle(request.getTitle());
+        }
+        if (request.getDescription() != null) {
+            course.setDescription(request.getDescription());
+        }
 
-        course.setTitle(request.getTitle());
-        course.setDescription(request.getDescription());
-        System.out.println("Course successfully updated: " + course.getTitle());
+        if (request.getFinishedTime() != null) {
+            try {
+                course.setFinishedTime(LocalDateTime.parse(request.getFinishedTime()));
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid finishedTime format", e);
+            }
+        }
 
-        return courseMapper.toResponse(course);
+        if (course.getStartedTime() != null) {
+            course.setStartedTime(course.getStartedTime());
+        }
+
+        if (request.getTheme() != null && request.getWay() != null) {
+            try {
+                course.setTheme(CourseTheme.valueOf(request.getTheme()));
+                course.setWay(CourseWay.valueOf(request.getWay()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid theme or way value", e);
+            }
+        }
+
+        Course updatedCourse = courseRepository.save(course);
+        System.out.println("Course successfully updated: " + updatedCourse.getTitle());
+
+        CourseResponse response = courseMapper.toResponse(updatedCourse);
+        response.setStartedTime(updatedCourse.getStartedTime());
+        response.setFinishedTime(updatedCourse.getFinishedTime());
+        response.setTheme(updatedCourse.getTheme().toString());
+        response.setWay(updatedCourse.getWay().toString());
+
+        return response;
     }
+
+
 
     public void deleteCourse(Long courseId, String teacherUsername) {
         System.out.println("Starting course deletion with ID: " + courseId + " for teacher: " + teacherUsername);
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("Course not found"));
-
         if (!course.getTeacher().getUsername().equals(teacherUsername)) {
             System.out.println("Teacher is not authorized to delete the course");
             throw new AccessDeniedException("You are not allowed to delete this course");
         }
 
+        // Удалить курс
         courseRepository.delete(course);
         System.out.println("Course successfully deleted: " + course.getTitle());
     }
 
+
+    @Transactional
     public List<CourseResponse> getAllCourses() {
         System.out.println("Retrieving all courses");
-        return courseMapper.toResponseList(courseRepository.findAll());
+        List<Course> courses = courseRepository.findAll();
+        return courseMapper.toResponseList(courses);
     }
+
 
     public CourseResponse getCourseById(Long courseId) {
         System.out.println("Retrieving course with ID: " + courseId);

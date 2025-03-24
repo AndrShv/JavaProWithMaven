@@ -1,9 +1,13 @@
 package com.example.controller.course;
 
+import com.example.dto.request.HomeworkGradeRequest;
 import com.example.dto.request.HomeworkRequest;
+import com.example.dto.response.HomeworkGradeResponse;
 import com.example.dto.response.HomeworkResponse;
 import com.example.model.Homework;
+import com.example.model.HomeworkGrade;
 import com.example.model.Lesson;
+import com.example.repository.studying.HomeworkGradeRepository;
 import com.example.service.studying.LessonService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
@@ -21,25 +25,30 @@ import java.util.List;
 public class LessonController {
 
     private final LessonService lessonService;
+    private final HomeworkGradeRepository homeworkGradeRepository;
 
-    public LessonController(LessonService lessonService) {
+    public LessonController(LessonService lessonService, HomeworkGradeRepository homeworkGradeRepository) {
         this.lessonService = lessonService;
+        this.homeworkGradeRepository = homeworkGradeRepository;
     }
 
     // Создание урока
     @PostMapping(value = "/{courseId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public Lesson createLesson(@RequestBody Lesson lesson, @PathVariable Long courseId) {
         return lessonService.createLesson(courseId, lesson);
     }
 
     // Получение урока
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public Lesson getLesson(@PathVariable Long id) {
         return lessonService.getLesson(id);
     }
 
     // Создание домашнего задания для урока
     @PostMapping("/{lessonId}/homework")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public HomeworkResponse createHomework(@PathVariable Long lessonId, @RequestBody HomeworkRequest homeworkRequest) {
         Homework homework = lessonService.createHomework(lessonId, homeworkRequest);
 
@@ -57,12 +66,20 @@ public class LessonController {
 
     // Оценка домашнего задания
     @PutMapping("/{lessonId}/homework/{homeworkId}/grade")
-    public Homework gradeHomework(@PathVariable Long homeworkId, @RequestParam int grade) {
-        return lessonService.gradeHomework(homeworkId, grade);
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
+    public ResponseEntity<HomeworkGradeResponse> gradeHomework(
+            @PathVariable Long lessonId,
+            @PathVariable Long homeworkId,
+            @RequestBody HomeworkGradeRequest request) {
+
+        HomeworkGradeResponse response = lessonService.gradeHomework(request);
+        return ResponseEntity.ok(response);
     }
+
 
     // Добавление комментария к домашнему заданию
     @PutMapping("/{lessonId}/homework/{homeworkId}/comment")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public Homework commentHomework(@PathVariable Long homeworkId, @RequestParam String comment) {
         return lessonService.commentHomework(homeworkId, comment);
     }
@@ -72,6 +89,13 @@ public class LessonController {
     public ResponseEntity<List<Homework>> getHomeworksByLesson(@PathVariable Long lessonId) {
         List<Homework> homeworks = lessonService.getHomeworksByLessonId(lessonId);
         return ResponseEntity.ok(homeworks);
+    }
+
+    @GetMapping("/{lessonId}/homework/{homeworkId}/grades")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER')")
+    public ResponseEntity<List<HomeworkGrade>> getHomeworkGrades(@PathVariable Long homeworkId) {
+        List<HomeworkGrade> grades = lessonService.getHomeworkGrades(homeworkId);
+        return ResponseEntity.ok(grades);
     }
 
 }
