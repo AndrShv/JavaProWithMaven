@@ -1,96 +1,119 @@
 package com.example.service.studying;
 
-import com.example.extraConfigs.CourseWay;
+import com.example.dto.request.HomeworkGradeRequest;
+import com.example.dto.request.HomeworkRequest;
+import com.example.dto.response.HomeworkGradeResponse;
 import com.example.extraConfigs.HomeworkStatus;
-import com.example.model.Course;
-import com.example.model.Homework;
-import com.example.model.Lesson;
+import com.example.mappers.HomeworkGradeMapper;
+import com.example.model.*;
 import com.example.repository.studying.CourseRepository;
+import com.example.repository.studying.HomeworkGradeRepository;
 import com.example.repository.studying.HomeworkRepository;
 import com.example.repository.studying.LessonRepository;
+import com.example.repository.users.UserRepository;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional
 public class LessonService {
-
+    private final HomeworkGradeRepository homeworkGradeRepository;
     private final LessonRepository lessonRepository;
     private final HomeworkRepository homeworkRepository;
     private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final HomeworkGradeMapper homeworkGradeMapper;
 
-    public LessonService(LessonRepository lessonRepository, HomeworkRepository homeworkRepository, CourseRepository courseRepository) {
+    public LessonService(HomeworkGradeRepository homeworkGradeRepository, LessonRepository lessonRepository, HomeworkRepository homeworkRepository, CourseRepository courseRepository, UserRepository userRepository, HomeworkGradeMapper homeworkGradeMapper) {
+        this.homeworkGradeRepository = homeworkGradeRepository;
         this.lessonRepository = lessonRepository;
         this.homeworkRepository = homeworkRepository;
         this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
+        this.homeworkGradeMapper = homeworkGradeMapper;
     }
 
-    // Создание урока
     public Lesson createLesson(Long courseId, Lesson lesson) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
-        lesson.setCourse(course); // Привязка к найденному курсу
+        lesson.setCourse(course);
         return lessonRepository.save(lesson);
     }
 
-    // Создание домашнего задания для урока
-    // Создание домашнего задания
-    public Homework createHomework(Long lessonId, Homework homework) {
+    public Homework createHomework(Long lessonId, HomeworkRequest homeworkRequest) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
-        Course course = courseRepository.findById(lesson.getCourse().getId())
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-
-        System.out.println("Found lesson: " + lesson.getTitle());
-        homework.setLesson(lesson);
+        if (homeworkRequest.getTitle() == null || homeworkRequest.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Homework title cannot be null or empty");
+        }
+        if (homeworkRequest.getDescription() == null || homeworkRequest.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Homework description cannot be null or empty");
+        }
+        Homework homework = new Homework();
+        homework.setTitle(homeworkRequest.getTitle());
+        homework.setDescription(homeworkRequest.getDescription());
         homework.setStatus(HomeworkStatus.IN_PROGRESS);
-        homework.setDoneAtTime(LocalDateTime.now());
-
+        homework.setCountingTries(0);
+        homework.setMistakes(0);
+        homework.setLesson(lesson);
+        homework.setGrade(0);
+        if (homeworkRequest.getUserId() != null) {
+            User user = userRepository.findById(homeworkRequest.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            homework.setUser(user);
+        }
+        if (homeworkRequest.getDoneAtTime() != null && !homeworkRequest.getDoneAtTime().isEmpty()) {
+            homework.setDoneAtTime(LocalDateTime.parse(homeworkRequest.getDoneAtTime()));
+        } else {
+            homework.setDoneAtTime(LocalDateTime.now());
+        }
         Homework savedHomework = homeworkRepository.save(homework);
-
         lesson.getHomeworks().add(savedHomework);
         lessonRepository.save(lesson);
-
-        System.out.println("Saved Homework: " + savedHomework);
-        System.out.println("Homework lesson: " + savedHomework.getLesson());
-
         return savedHomework;
     }
 
     public List<Homework> getHomeworksByLessonId(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
-        System.out.println("Lesson found: " + lesson.getTitle());
         Hibernate.initialize(lesson.getHomeworks());
         return lesson.getHomeworks();
     }
 
-
-
-
-    // Оценка домашнего задания
-    public Homework gradeHomework(Long homeworkId, int grade) {
-        Homework homework = homeworkRepository.findById(homeworkId)
+    public HomeworkGradeResponse gradeHomework(HomeworkGradeRequest request) {
+        Homework homework = homeworkRepository.findById(request.getHomeworkId())
                 .orElseThrow(() -> new RuntimeException("Homework not found"));
-        homework.setGrade(grade);
-        homework.setStatus(grade == 100 ? HomeworkStatus.DONE : HomeworkStatus.IN_PROGRESS); // Изменение статуса
-        return homeworkRepository.save(homework);
+        Hibernate.initialize(homework.getLesson());
+        User teacher = userRepository.findById(request.getTeacherId())
+                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+        User student = userRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+        if (!homework.getLesson().getCourse().getStudents().contains(student)) {
+            throw new RuntimeException("Student is not enrolled in the course of this homework");
+        }
+
+        HomeworkGrade homeworkGrade = homeworkGradeRepository.findByHomeworkIdAndTeacherIdAndStudentId(
+                        request.getHomeworkId(), request.getTeacherId(), request.getStudentId())
+                .orElse(new HomeworkGrade());
+        homeworkGrade.setHomework(homework);
+        homeworkGrade.setTeacher(teacher);
+        homeworkGrade.setStudent(student);
+        homeworkGrade.setGrade(request.getGrade());
+        HomeworkGrade savedHomeworkGrade = homeworkGradeRepository.save(homeworkGrade);
+        return homeworkGradeMapper.toResponse(savedHomeworkGrade);
     }
 
-    // Добавление комментария к домашнему заданию
     public Homework commentHomework(Long homeworkId, String comment) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new RuntimeException("Homework not found"));
         homework.setComment(comment); // Установка комментария
         return homeworkRepository.save(homework);
     }
-
-    // Получение урока
     public Lesson getLesson(Long id) {
         return lessonRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
@@ -100,6 +123,9 @@ public class LessonService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         return lessonRepository.findByCourse(course);
+    }
+    public List<HomeworkGrade> getHomeworkGrades(Long homeworkId) {
+        return homeworkGradeRepository.findByHomeworkId(homeworkId);
     }
 
 
