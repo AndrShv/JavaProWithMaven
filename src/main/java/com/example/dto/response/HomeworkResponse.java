@@ -10,7 +10,7 @@ public class HomeworkResponse {
     private Long id;
     private String title;
     private String description;
-    private LocalDateTime dueDate;
+    private LocalDateTime doneAtTime;
     private Long lessonId;
     private int grade;
     private String comment;

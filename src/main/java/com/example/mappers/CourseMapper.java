@@ -18,6 +18,10 @@ public class CourseMapper {
         courseResponse.setTeacherUsername(course.getTeacher().getUsername());
         courseResponse.setTeacherEmail(course.getTeacherEmail());
         courseResponse.setCreatedAt(course.getCreatedAt());
+        courseResponse.setFinishedTime(course.getFinishedTime());
+        courseResponse.setStartedTime(course.getStartedTime());
+        courseResponse.setTheme(course.getTheme() != null ? course.getTheme().toString() : null);
+        courseResponse.setWay(course.getWay() != null ? course.getWay().toString() : null);
         return courseResponse;
     }
 

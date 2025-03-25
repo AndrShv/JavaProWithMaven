@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -30,14 +31,12 @@ public class CourseController {
 
     private final CourseService courseService;
     private final LessonService lessonService;
-    private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public CourseController(CourseService courseService, LessonService lessonService, CourseRepository courseRepository, UserRepository userRepository) {
+    public CourseController(CourseService courseService, LessonService lessonService, UserRepository userRepository) {
         this.courseService = courseService;
         this.lessonService = lessonService;
-        this.courseRepository = courseRepository;
         this.userRepository = userRepository;
     }
 
@@ -54,6 +53,7 @@ public class CourseController {
         response.setTeacherUsername(teacherUsername);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ROLE_TEACHER')")
@@ -100,10 +100,19 @@ public class CourseController {
     public ResponseEntity<Void> deleteCourse(
             @PathVariable Long courseId,
             Principal principal) {
+
+        if (principal == null) {
+            System.out.println("Principal is null. User is not authenticated.");
+            throw new AccessDeniedException("User is not authenticated");
+        }
+
         String teacherUsername = principal.getName();
+        System.out.println("Authenticated user: " + teacherUsername);
+
         courseService.deleteCourse(courseId, teacherUsername);
         return ResponseEntity.noContent().build();
     }
+
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ROLE_STUDENT') or hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")

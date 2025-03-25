@@ -2,6 +2,7 @@ package com.example.model;
 
 import com.example.extraConfigs.HomeworkStatus;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Homework {
     @JsonBackReference
     private Course course;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -55,6 +57,7 @@ public class Homework {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "lesson_id")
+    @JsonIgnore
     private Lesson lesson;
 
 
