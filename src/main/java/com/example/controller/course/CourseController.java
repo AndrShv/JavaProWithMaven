@@ -54,6 +54,7 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     @PutMapping("/{courseId}")
     @PreAuthorize("hasAuthority('ROLE_TEACHER')")
     public ResponseEntity<CourseResponse> updateCourse(

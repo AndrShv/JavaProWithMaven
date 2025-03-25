@@ -66,7 +66,12 @@ public class LessonService {
             User user = userRepository.findById(homeworkRequest.getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
             homework.setUser(user);
+            System.out.println("User set: " + user.getUsername());
+        }else {
+            System.out.println("User ID is null in request!");
+
         }
+
         if (homeworkRequest.getDoneAtTime() != null && !homeworkRequest.getDoneAtTime().isEmpty()) {
             homework.setDoneAtTime(LocalDateTime.parse(homeworkRequest.getDoneAtTime()));
         } else {
@@ -104,6 +109,7 @@ public class LessonService {
         homeworkGrade.setTeacher(teacher);
         homeworkGrade.setStudent(student);
         homeworkGrade.setGrade(request.getGrade());
+        homework.setGrade(request.getGrade());
         HomeworkGrade savedHomeworkGrade = homeworkGradeRepository.save(homeworkGrade);
         return homeworkGradeMapper.toResponse(savedHomeworkGrade);
     }
@@ -111,9 +117,13 @@ public class LessonService {
     public Homework commentHomework(Long homeworkId, String comment) {
         Homework homework = homeworkRepository.findById(homeworkId)
                 .orElseThrow(() -> new RuntimeException("Homework not found"));
-        homework.setComment(comment); // Установка комментария
-        return homeworkRepository.save(homework);
+        homework.setComment(comment);
+        Homework updatedHomework = homeworkRepository.save(homework);
+        Hibernate.initialize(updatedHomework.getUser());
+        Hibernate.initialize(updatedHomework.getLesson());
+        return updatedHomework;
     }
+
     public Lesson getLesson(Long id) {
         return lessonRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));

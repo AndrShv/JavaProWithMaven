@@ -2,12 +2,15 @@ package com.example.service.studying;
 
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
+import com.example.extraConfigs.AchievementType;
 import com.example.extraConfigs.CourseTheme;
 import com.example.extraConfigs.CourseWay;
 import com.example.mappers.CourseMapper;
+import com.example.model.Achievement;
 import com.example.model.Course;
 import com.example.model.User;
 import com.example.rabbitMqConfigs.NotificationService;
+import com.example.repository.achievement.AchievementRepository;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.users.UserRepository;
 import com.example.service.achievements.AchievementCheckService;
@@ -36,6 +39,9 @@ public class CourseService {
 
     @Autowired
     private CourseMapper courseMapper;
+    @Autowired
+    private AchievementRepository achievementRepository;
+
 
     @Autowired
     private AchievementCheckService achievementCheckService;
@@ -78,6 +84,14 @@ public class CourseService {
             throw new IllegalArgumentException("Theme and Way cannot be null");
         }
         Course savedCourse = courseRepository.save(course);
+        Achievement achievement = new Achievement();
+        achievement.setName("Created Course: " + course.getTitle());
+        achievement.setRarity(AchievementType.COMMON);
+        achievement.setDescription("You have created a new course.");
+        teacher.getAchievements().add(achievement);
+        achievementRepository.save(achievement);
+        userRepository.save(teacher);
+
         System.out.println("Course successfully saved: " + savedCourse.getTitle());
         CourseResponse response = courseMapper.toResponse(savedCourse);
         response.setStartedTime(savedCourse.getStartedTime());
@@ -187,11 +201,13 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    @Transactional
     public void completeCourse(Long userId, Long courseId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
         user.getCompletedCourses().add(course);
         userRepository.save(user);
+        System.out.println("User " + user.getUsername() + " has completed course " + course.getTitle());
         achievementCheckService.achievementAfterEndingFirstCourse(userId, course.getId());
         achievementCheckService.finishThreeDifferentCourses(userId, course.getId());
         achievementCheckService.completeCourseWithoutMistakes(userId, course.getId());
@@ -199,7 +215,6 @@ public class CourseService {
         achievementCheckService.getTwentyFiveDifferentAchievements(userId);
         achievementCheckService.getAllAchievements(userId);
         achievementCheckService.checkTeacherFavorite(user.getId());
-
-        System.out.println("User " + user.getUsername() + " has completed course " + course.getTitle());
     }
+
 }

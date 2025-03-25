@@ -10,8 +10,10 @@ import com.example.repository.achievement.AchievementRepository;
 import com.example.repository.studying.CourseRepository;
 import com.example.repository.studying.HomeworkRepository;
 import com.example.repository.users.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,6 +56,11 @@ public class AchievementCheckService {
                     "First Course",
                     AchievementType.COMMON,
                     "Complete your first course");
+            if (user.get().getAchievements() == null) {
+                user.get().setAchievements(new HashSet<>());
+            }
+
+            user.get().getAchievements().add(achievement);
             achievementRepository.save(achievement);
             userRepository.save(user.get());
             achievementCreationService.addAchievementToUser(userId, achievement);
@@ -67,10 +74,14 @@ public class AchievementCheckService {
                     "Ten Courses",
                     AchievementType.COMMON,
                     "Complete 10 courses");
+            if (user.get().getAchievements() == null) {
+                user.get().setAchievements(new HashSet<>());
+            }
+
+            user.get().getAchievements().add(achievement);
             achievementRepository.save(achievement);
             userRepository.save(user.get());
             achievementCreationService.addAchievementToUser(userId, achievement);
-
         }
     }
 
@@ -87,6 +98,11 @@ public class AchievementCheckService {
                         "Polyglot",
                         AchievementType.RARE,
                         "Complete 3 different courses");
+                if (user.get().getAchievements() == null) {
+                    user.get().setAchievements(new HashSet<>());
+                }
+
+                user.get().getAchievements().add(achievement);
                 achievementRepository.save(achievement);
                 userRepository.save(user.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
@@ -100,11 +116,19 @@ public class AchievementCheckService {
         Optional<Homework> homework = homeworkRepository.findByUserAndCourse(user.get(), course.get());
 
         if (user.isPresent() && course.isPresent()) {
-            if (homework.isPresent() && homework.get().getMistakes() == 0 && homework.get().getCountingTries() == 1 && homework.get().getStatus() == MAX_GRADE) {
+            if (homework.isPresent() &&
+                    homework.get().getMistakes() == 0 &&
+                    homework.get().getCountingTries() == 1 &&
+                    homework.get().getGrade() == 100) {
                 Achievement achievement = achievementCreationService.createAchievement(
                         "Student of the Year",
                         AchievementType.LEGENDARY,
                         "Complete a course without making a single mistake on the tests");
+                if (user.get().getAchievements() == null) {
+                    user.get().setAchievements(new HashSet<>());
+                }
+
+                user.get().getAchievements().add(achievement);
                 achievementRepository.save(achievement);
                 userRepository.save(user.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
@@ -118,25 +142,31 @@ public class AchievementCheckService {
         Optional<Homework> homework = homeworkRepository.findByUserAndCourse(user.get(), course.get());
 
         if (user.isPresent() && course.isPresent() && homework.isPresent()) {
-            if (homework.get().getStatus() == MAX_GRADE) {
+            if (homework.get().getGrade() == 100) {
                 Achievement achievement = achievementCreationService.createAchievement(
                         "First Homework On Max Grade Completed",
                         AchievementType.COMMON,
                         "Complete your first homework on max grade");
+                if (user.get().getAchievements() == null) {
+                    user.get().setAchievements(new HashSet<>());
+                }
+
+                user.get().getAchievements().add(achievement);
                 achievementRepository.save(achievement);
                 userRepository.save(user.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
-
             }
         }
     }
-
+    @Transactional
     public void toDoFiveHomeworksInOneDay(Long userId, Long courseId) {
-        Optional<User> user = userRepository.findById(userId);
+        System.out.println("toDoFirstHomeworkWell called with userId: " + userId + " and courseId: " + courseId);
+        Optional<User> userOpt = userRepository.findById(userId);
         Optional<Course> course = courseRepository.findById(courseId);
-        Optional<Homework> homework = homeworkRepository.findByUserAndCourse(user.get(), course.get());
+        Optional<Homework> homework = homeworkRepository.findByUserAndCourse(userOpt.get(), course.get());
 
-        if (user.isPresent() && course.isPresent()) {
+        if (userOpt.isPresent() && course.isPresent()) {
+            User user = userOpt.get();
             if (homework.isPresent()) {
                 Homework homeworkInstance = homework.get();
                 if (achievementCreationService.isSubmittedWithin24Hours(homeworkInstance)) {
@@ -149,9 +179,15 @@ public class AchievementCheckService {
                             "Five Homeworks In One Day Completed",
                             AchievementType.COMMON,
                             "Complete 5 homeworks in one day");
+                    if (user.getAchievements() == null) {
+                        user.setAchievements(new HashSet<>());
+                    }
+                    user.getAchievements().add(achievement);
                     achievementRepository.save(achievement);
-                    userRepository.save(user.get());
+                    userRepository.save(user);
+                    System.out.println("Before adding achievement: " + userOpt.get().getAchievements());
                     achievementCreationService.addAchievementToUser(userId, achievement);
+                    System.out.println("After adding achievement: " + userOpt.get().getAchievements());
 
                 }
             } else {
@@ -160,19 +196,22 @@ public class AchievementCheckService {
         }
     }
 
-    public void tryToDoOneHomeworkFewTimes(Long userId, Long courseId) {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<Course> course = courseRepository.findById(courseId);
-        Optional<Homework> homework = homeworkRepository.findByUserAndCourse(user.get(), course.get());
 
-        if (user.isPresent() && homework.isPresent()){
+    public void tryToDoOneHomeworkFewTimes(Long userId, Long courseId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Course> course = courseRepository.findById(courseId);
+        Optional<Homework> homework = homeworkRepository.findByUserAndCourse(userOpt.get(), course.get());
+
+        if (userOpt.isPresent() && homework.isPresent()){
+            User user = userOpt.get();
             if(homework.get().getCountingTries() <= 3){
                 Achievement achievement = achievementCreationService.createAchievement(
                         "Trying hard - Few Tries",
                         AchievementType.COMMON,
                         "Complete 3 homeworks in one day");
+                user.getAchievements().add(achievement);
                 achievementRepository.save(achievement);
-                userRepository.save(user.get());
+                userRepository.save(userOpt.get());
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
@@ -187,9 +226,9 @@ public class AchievementCheckService {
                         "Ten Achievements Unlocked",
                         AchievementType.EPIC,
                         "Complete 10 achievements");
+                user.getAchievements().add(achievement);
                 achievementRepository.save(achievement);
                 userRepository.save(user);
-
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
@@ -204,6 +243,7 @@ public class AchievementCheckService {
                         "Twenty-Five Achievements Unlocked",
                         AchievementType.LEGENDARY,
                         "Complete 25 achievements");
+                user.getAchievements().add(achievement);
                 achievementRepository.save(achievement);
                 userRepository.save(user);
                 achievementCreationService.addAchievementToUser(userId, achievement);
@@ -220,18 +260,18 @@ public class AchievementCheckService {
                         "All Achievements Unlocked",
                         AchievementType.LEGENDARY,
                         "Complete all achievements");
+                user.getAchievements().add(achievement);
                 achievementRepository.save(achievement);
                 userRepository.save(user);
                 achievementCreationService.addAchievementToUser(userId, achievement);
             }
         }
     }
-
     public void checkTeacherFavorite(Long userId) {
         Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            checkTeacherFavorite(user.get().getId());
-        }
-
+        if (user.isEmpty()) return;
+        System.out.println("Проверяем, является ли пользователь любимым учеником.");
     }
+
+
 }

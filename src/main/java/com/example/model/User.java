@@ -2,6 +2,7 @@ package com.example.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,7 +45,9 @@ public class User {
     )
     private Set<Achievement> achievements = new HashSet<>();
 
+
     @ManyToMany(mappedBy = "students", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Course> courses;
 
     @ManyToMany(fetch = FetchType.EAGER)

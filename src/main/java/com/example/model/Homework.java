@@ -33,6 +33,7 @@ public class Homework {
     @JsonBackReference
     private Course course;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
