@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -98,15 +99,19 @@ public class LessonService {
                 .orElseThrow(() -> new RuntimeException("Teacher not found"));
         User student = userRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
+
         if (!homework.getLesson().getCourse().getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course of this homework");
         }
-
-        HomeworkGrade homeworkGrade = homeworkGradeRepository.findByHomeworkIdAndTeacherIdAndStudentId(
-                        request.getHomeworkId(), request.getTeacherId(), request.getStudentId())
-                .orElse(new HomeworkGrade());
+        List<HomeworkGrade> existingHomeworkGrades = homeworkGradeRepository.findByHomeworkIdAndTeacherIdAndStudentId(
+                request.getHomeworkId(), request.getTeacherId(), request.getStudentId());
+        if (!existingHomeworkGrades.isEmpty()) {
+            throw new RuntimeException("Grade for this homework already exists");
+        }
+        HomeworkGrade homeworkGrade = new HomeworkGrade();
         homeworkGrade.setHomework(homework);
         homeworkGrade.setTeacher(teacher);
+        homeworkGrade.setCourse(homework.getLesson().getCourse());
         homeworkGrade.setStudent(student);
         homeworkGrade.setGrade(request.getGrade());
         homework.setGrade(request.getGrade());

@@ -6,26 +6,26 @@ import com.example.extraConfigs.AchievementType;
 import com.example.extraConfigs.CourseTheme;
 import com.example.extraConfigs.CourseWay;
 import com.example.mappers.CourseMapper;
-import com.example.model.Achievement;
-import com.example.model.Course;
-import com.example.model.User;
+import com.example.model.*;
 import com.example.rabbitMqConfigs.NotificationService;
 import com.example.repository.achievement.AchievementRepository;
+import com.example.repository.studying.AssignmentRepository;
 import com.example.repository.studying.CourseRepository;
+import com.example.repository.studying.HomeworkGradeRepository;
+import com.example.repository.studying.HomeworkRepository;
 import com.example.repository.users.UserRepository;
 import com.example.service.achievements.AchievementCheckService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -33,6 +33,8 @@ public class CourseService {
 
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private AssignmentRepository assignmentRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -41,6 +43,11 @@ public class CourseService {
     private CourseMapper courseMapper;
     @Autowired
     private AchievementRepository achievementRepository;
+    @Autowired
+    private HomeworkRepository  homeworkRepository;
+    @Autowired
+    private HomeworkGradeRepository homeworkGradeRepository;
+
 
 
     @Autowired
@@ -48,6 +55,7 @@ public class CourseService {
     @Autowired
     private NotificationService notificationService;
 
+    @Transactional
     public CourseResponse createCourse(CourseRequest request, String teacherUsername) {
         System.out.println("Start creating a teacher course: " + teacherUsername);
 
@@ -61,7 +69,6 @@ public class CourseService {
         course.setTeacherEmail(teacher.getEmail());
         course.setStartedTime(LocalDateTime.now());
 
-
         if (request.getFinishedTime() != null) {
             try {
                 course.setFinishedTime(LocalDateTime.parse(request.getFinishedTime()));
@@ -71,7 +78,6 @@ public class CourseService {
         } else {
             throw new IllegalArgumentException("finishedTime cannot be null");
         }
-
 
         if (request.getTheme() != null && request.getWay() != null) {
             try {
@@ -84,15 +90,23 @@ public class CourseService {
             throw new IllegalArgumentException("Theme and Way cannot be null");
         }
         Course savedCourse = courseRepository.save(course);
-        Achievement achievement = new Achievement();
-        achievement.setName("Created Course: " + course.getTitle());
-        achievement.setRarity(AchievementType.COMMON);
-        achievement.setDescription("You have created a new course.");
-        teacher.getAchievements().add(achievement);
-        achievementRepository.save(achievement);
-        userRepository.save(teacher);
+
+        if (teacher.getCourses().isEmpty()) {
+            Achievement achievement = new Achievement();
+            achievement.setName("Created Course: " + savedCourse.getTitle());
+            achievement.setRarity(AchievementType.COMMON);
+            achievement.setDescription("You have created a new course.");
+            Set<User> userSet = new HashSet<>();
+            userSet.add(teacher);
+            achievement.setUsers(userSet);
+            achievementRepository.save(achievement);
+            teacher.getAchievements().add(achievement);
+            userRepository.save(teacher);
+        }
+
 
         System.out.println("Course successfully saved: " + savedCourse.getTitle());
+
         CourseResponse response = courseMapper.toResponse(savedCourse);
         response.setStartedTime(savedCourse.getStartedTime());
         response.setFinishedTime(savedCourse.getFinishedTime());
@@ -104,6 +118,48 @@ public class CourseService {
 
         return response;
     }
+    @Transactional
+    public void addUserToCourse(Long userId, Long courseId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+
+        if (course.getStudents().contains(user)) {
+            throw new IllegalStateException("User is already enrolled in this course");
+        }
+
+        course.getStudents().add(user);
+
+        if (course.getStudents().size() == 1) {
+            // Achievement for adding the first student
+            Achievement firstStudentAchievement = new Achievement();
+            firstStudentAchievement.setName("Your First Student Is Here!");
+            firstStudentAchievement.setRarity(AchievementType.COMMON);
+            firstStudentAchievement.setDescription("You have added a first student to your course.");
+            firstStudentAchievement.setUsers(new HashSet<>(Set.of(user)));
+            achievementRepository.save(firstStudentAchievement);
+            user.getAchievements().add(firstStudentAchievement);
+            userRepository.save(user);
+            System.out.println("Achievement saved for user " + userId + ": " + firstStudentAchievement.getName());
+
+            // Achievement for the teacher of the course
+            User teacher = course.getTeacher();
+            Achievement teacherAchievement = new Achievement();
+            teacherAchievement.setName("Student Joined Your Course!");
+            teacherAchievement.setRarity(AchievementType.RARE);
+            teacherAchievement.setDescription("A new student has joined your course.");
+            teacherAchievement.setUsers(new HashSet<>(Set.of(teacher)));
+            achievementRepository.save(teacherAchievement);
+            teacher.getAchievements().add(teacherAchievement);
+            userRepository.save(teacher);
+            System.out.println("Achievement saved for teacher: " + teacher.getUsername());
+        }
+
+        courseRepository.save(course);
+    }
+
+
 
 
     public CourseResponse updateCourse(Long courseId, CourseRequest request, String teacherUsername) {
@@ -144,13 +200,11 @@ public class CourseService {
 
         Course updatedCourse = courseRepository.save(course);
         System.out.println("Course successfully updated: " + updatedCourse.getTitle());
-
         CourseResponse response = courseMapper.toResponse(updatedCourse);
         response.setStartedTime(updatedCourse.getStartedTime());
         response.setFinishedTime(updatedCourse.getFinishedTime());
         response.setTheme(updatedCourse.getTheme().toString());
         response.setWay(updatedCourse.getWay().toString());
-
         return response;
     }
 
@@ -164,8 +218,6 @@ public class CourseService {
             System.out.println("Teacher is not authorized to delete the course");
             throw new AccessDeniedException("You are not allowed to delete this course");
         }
-
-        // Удалить курс
         courseRepository.delete(course);
         System.out.println("Course successfully deleted: " + course.getTitle());
     }
@@ -186,35 +238,82 @@ public class CourseService {
         System.out.println("Course found: " + course.getTitle());
         return courseMapper.toResponse(course);
     }
-
-    @Transactional
-    public void addUserToCourse(Long userId, Long courseId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
-        if (course.getStudents().contains(user)) {
-            throw new IllegalStateException("User is already enrolled in this course");
-        }
-
-        course.getStudents().add(user);
-        courseRepository.save(course);
-    }
-
     @Transactional
     public void completeCourse(Long userId, Long courseId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found"));
+        if (!isCourseCompletedByUser(userId, courseId)) {
+            throw new IllegalStateException("The course cannot be completed until all assignments are submitted with a score of 80+");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (user.getCompletedCourses() == null) {
+            user.setCompletedCourses(new HashSet<>());
+        }
+
         user.getCompletedCourses().add(course);
         userRepository.save(user);
+
         System.out.println("User " + user.getUsername() + " has completed course " + course.getTitle());
-        achievementCheckService.achievementAfterEndingFirstCourse(userId, course.getId());
-        achievementCheckService.finishThreeDifferentCourses(userId, course.getId());
-        achievementCheckService.completeCourseWithoutMistakes(userId, course.getId());
-        achievementCheckService.getTenDifferentAchievements(userId);
-        achievementCheckService.getTwentyFiveDifferentAchievements(userId);
-        achievementCheckService.getAllAchievements(userId);
-        achievementCheckService.checkTeacherFavorite(user.getId());
+        if (user.getCompletedCourses().size() == 1) {
+            achievementCheckService.achievementAfterEndingFirstCourse(userId, courseId);
+        }
+        if (user.getCompletedCourses().size() == 5) {
+            achievementCheckService.completingFiveCourses(userId, courseId);
+        }
+
+        Homework homework = homeworkRepository.findByCourseIdAndUserId(courseId, userId)
+                .orElseThrow(() -> new RuntimeException("Homework not found"));
+        if (homework.getMistakes() == 0 && homework.getCountingTries() == 1) {
+            achievementCheckService.completeCourseWithoutMistakes(userId, courseId);
+        }
     }
+    @Transactional
+    public void checkAchievementsForAllUsersInCourse(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        List<User> students = course.getStudents();
+
+        if (students.isEmpty()) {
+            System.out.println("No students enrolled in this course.");
+            return;
+        }
+
+        for (User student : students) {
+            List<HomeworkGrade> homeworkGrades = homeworkGradeRepository.findByCourseIdAndStudentId(courseId, student.getId());
+            if (homeworkGrades.isEmpty()) {
+                System.out.println("Homework not found for student " + student.getUsername());
+                continue;
+            }
+
+            boolean allGradesPassed = homeworkGrades.stream()
+                    .allMatch(grade -> grade.getGrade() >= 80);
+
+            if (allGradesPassed) {
+                completeCourse(student.getId(), courseId);
+                System.out.println("All assignments completed successfully for " + student.getUsername());
+            } else {
+                System.out.println("Not all assignments passed for " + student.getUsername());
+            }
+        }
+    }
+
+    public boolean isCourseCompletedByUser(Long userId, Long courseId) {
+        List<HomeworkGrade> homeworkGrades = homeworkGradeRepository.findByCourseIdAndStudentId(courseId, userId);
+        if (homeworkGrades.size() < 2) {
+            return false;
+        }
+        for (HomeworkGrade grade : homeworkGrades) {
+            if (grade.getGrade() < 80) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 
 }

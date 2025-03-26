@@ -3,10 +3,8 @@ package com.example.controller.course;
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
 import com.example.model.Achievement;
-import com.example.model.Course;
 import com.example.model.Lesson;
 import com.example.model.User;
-import com.example.repository.studying.CourseRepository;
 import com.example.repository.users.UserRepository;
 import com.example.service.studying.CourseService;
 import com.example.service.studying.LessonService;
@@ -134,5 +132,20 @@ public class CourseController {
         List<Lesson> lessons = lessonService.getLessonsByCourse(courseId);
         return ResponseEntity.ok(lessons);
     }
+    @PostMapping("/{courseId}/check-all-achievements")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> checkAchievementsForAllUsers(@PathVariable Long courseId) {
+        courseService.checkAchievementsForAllUsersInCourse(courseId);
+        return ResponseEntity.ok("Achievements checked for all students.");
+    }
+
+    @PostMapping("/{courseId}/complete")
+    @PreAuthorize("hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<String> completeCourse(@RequestParam Long userId, @PathVariable Long courseId) {
+        courseService.completeCourse(userId, courseId);
+        return ResponseEntity.ok("Course completed for student.");
+    }
+
+
 }
 

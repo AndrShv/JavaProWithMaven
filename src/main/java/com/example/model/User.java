@@ -37,7 +37,7 @@ public class User {
     @Column(nullable = false)
     private final int MAX_ACHIEVEMENTS = 50;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "user_achievements",
             joinColumns = @JoinColumn(name = "user_id"),

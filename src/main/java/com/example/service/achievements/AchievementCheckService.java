@@ -39,7 +39,7 @@ public class AchievementCheckService {
 
     public void checkAchievementOnCompleteCourse(Long userId, Long courseId) {
         achievementAfterEndingFirstCourse(userId, courseId);
-        completingTenCourses(userId, courseId);
+        completingFiveCourses(userId, courseId);
         finishThreeDifferentCourses(userId, courseId);
         completeCourseWithoutMistakes(userId, courseId);
     }
@@ -67,9 +67,9 @@ public class AchievementCheckService {
         }
     }
 
-    private void completingTenCourses(Long userId, Long courseId) {
+    public void completingFiveCourses(Long userId, Long courseId) {
         Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent() && user.get().getCompletedCourses().size() == 10) {
+        if (user.isPresent() && user.get().getCompletedCourses().size() == 5) {
             Achievement achievement = achievementCreationService.createAchievement(
                     "Ten Courses",
                     AchievementType.COMMON,
