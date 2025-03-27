@@ -69,10 +69,12 @@ public class Course {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     @JsonIgnore
+
     private List<User> students = new ArrayList<>();
 
     @OneToMany(mappedBy = "course")
     @JsonManagedReference
+    @JsonIgnore
     private List<Homework> homeworks;
 
 

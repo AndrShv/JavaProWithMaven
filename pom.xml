@@ -19,7 +19,7 @@
         <maven.compiler.source>21</maven.compiler.source> <!-- Java 21 поддерживается, но лучше перейти на 17 для совместимости -->
         <maven.compiler.target>217</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>21</java.version> <!-- Spring Boot 3.1+ официально поддерживает Java 17 -->
+        <java.version>21</java.version>
         <spring-doc.version>2.2.0</spring-doc.version>
         <jwt.version>0.11.5</jwt.version>
     </properties>
@@ -31,6 +31,29 @@
             <artifactId>lombok</artifactId>
             <version>1.18.32</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+
+
+
+        <dependency>
+            <groupId>org.springframework.integration</groupId>
+            <artifactId>spring-integration-core</artifactId>
+            <version>6.4.3</version>
         </dependency>
 
 
@@ -48,17 +71,8 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
 
-        <!-- JPA and Database -->
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
-        </dependency>
+
 
 
         <dependency>
@@ -110,10 +124,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
+
+
 
         <!-- Reactor -->
         <dependency>
@@ -231,9 +243,14 @@
             <groupId>com.example</groupId>
             <artifactId>Java-Pro-Studing</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>3.1.4</version>
+            <scope>import</scope>
+            <type>pom</type>
+        </dependency>
     </dependencies>
 
 
