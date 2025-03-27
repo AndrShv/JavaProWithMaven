@@ -9,30 +9,30 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "homework_grade", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"homework_id", "teacher_id", "student_id"})
-})
+        @UniqueConstraint(columnNames = {"homework_id", "teacher_id", "student_id"})})
 public class HomeworkGrade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "grade")
+    @Column(name = "grade", nullable = false)
     private int grade;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "homework_id", nullable = false)
-    @JsonIgnore
     private Homework homework;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id", nullable = false)
     private User teacher;
 
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     private User student;
 }

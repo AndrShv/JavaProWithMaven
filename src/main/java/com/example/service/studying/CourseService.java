@@ -121,44 +121,43 @@ public class CourseService {
     @Transactional
     public void addUserToCourse(Long userId, Long courseId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with ID: " + courseId));
 
         if (course.getStudents().contains(user)) {
             throw new IllegalStateException("User is already enrolled in this course");
         }
-
         course.getStudents().add(user);
 
+        // Проверка: это первый студент в курсе?
         if (course.getStudents().size() == 1) {
-            // Achievement for adding the first student
+            User teacher = course.getTeacher();
             Achievement firstStudentAchievement = new Achievement();
             firstStudentAchievement.setName("Your First Student Is Here!");
             firstStudentAchievement.setRarity(AchievementType.COMMON);
             firstStudentAchievement.setDescription("You have added a first student to your course.");
-            firstStudentAchievement.setUsers(new HashSet<>(Set.of(user)));
+            firstStudentAchievement.setUsers(new HashSet<>(Set.of(teacher)));
             achievementRepository.save(firstStudentAchievement);
-            user.getAchievements().add(firstStudentAchievement);
-            userRepository.save(user);
-            System.out.println("Achievement saved for user " + userId + ": " + firstStudentAchievement.getName());
-
-            // Achievement for the teacher of the course
-            User teacher = course.getTeacher();
-            Achievement teacherAchievement = new Achievement();
-            teacherAchievement.setName("Student Joined Your Course!");
-            teacherAchievement.setRarity(AchievementType.RARE);
-            teacherAchievement.setDescription("A new student has joined your course.");
-            teacherAchievement.setUsers(new HashSet<>(Set.of(teacher)));
-            achievementRepository.save(teacherAchievement);
-            teacher.getAchievements().add(teacherAchievement);
+            teacher.getAchievements().add(firstStudentAchievement);
             userRepository.save(teacher);
             System.out.println("Achievement saved for teacher: " + teacher.getUsername());
         }
 
+        // Проверка: это первый курс студента?
+        if (user.getCourses() == null || user.getCourses().isEmpty()) {
+            Achievement studentAchievement = new Achievement();
+            studentAchievement.setName("You Joined Your First Course!");
+            studentAchievement.setRarity(AchievementType.RARE);
+            studentAchievement.setDescription("You have joined your first course.");
+            studentAchievement.setUsers(new HashSet<>(Set.of(user)));
+            achievementRepository.save(studentAchievement);
+            user.getAchievements().add(studentAchievement);
+            userRepository.save(user);
+            System.out.println("Achievement saved for student: " + user.getUsername());
+        }
         courseRepository.save(course);
     }
-
 
 
 
@@ -252,7 +251,6 @@ public class CourseService {
         if (user.getCompletedCourses() == null) {
             user.setCompletedCourses(new HashSet<>());
         }
-
         user.getCompletedCourses().add(course);
         userRepository.save(user);
 
@@ -263,13 +261,18 @@ public class CourseService {
         if (user.getCompletedCourses().size() == 5) {
             achievementCheckService.completingFiveCourses(userId, courseId);
         }
-
-        Homework homework = homeworkRepository.findByCourseIdAndUserId(courseId, userId)
-                .orElseThrow(() -> new RuntimeException("Homework not found"));
-        if (homework.getMistakes() == 0 && homework.getCountingTries() == 1) {
+        List<Homework> homeworkList = homeworkRepository.findByCourseIdAndUserId(courseId, userId);
+        if (homeworkList.isEmpty()) {
+            throw new RuntimeException("Homework not found for course " + courseId + " and user " + userId);
+        }
+        boolean noMistakesAndSingleTry = homeworkList.stream()
+                .allMatch(homework -> homework.getMistakes() == 0 && homework.getCountingTries() == 1);
+        if (noMistakesAndSingleTry) {
             achievementCheckService.completeCourseWithoutMistakes(userId, courseId);
         }
     }
+
+
     @Transactional
     public void checkAchievementsForAllUsersInCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
@@ -313,7 +316,4 @@ public class CourseService {
         }
         return true;
     }
-
-
-
 }

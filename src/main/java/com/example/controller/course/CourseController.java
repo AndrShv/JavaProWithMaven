@@ -2,6 +2,7 @@ package com.example.controller.course;
 
 import com.example.dto.request.CourseRequest;
 import com.example.dto.response.CourseResponse;
+import com.example.exception.UserNotFoundException;
 import com.example.model.Achievement;
 import com.example.model.Lesson;
 import com.example.model.User;
@@ -83,14 +84,13 @@ public class CourseController {
     @GetMapping("/user/{userId}/achievements")
     @PreAuthorize("hasAuthority('ROLE_TEACHER') or hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Set<Achievement>> getUserAchievements(@PathVariable Long userId) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            Set<Achievement> achievements = user.getAchievements();
-            return ResponseEntity.ok(achievements);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Set<Achievement> achievements = user.getAchievements();
+        if (achievements == null || achievements.isEmpty()) {
+            return ResponseEntity.ok(Set.of());
         }
+        return ResponseEntity.ok(achievements);
     }
 
     @DeleteMapping("/{courseId}")

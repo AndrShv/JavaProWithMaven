@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,18 +53,20 @@ public class AchievementCheckService {
     public void achievementAfterEndingFirstCourse(Long userId, Long courseId) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent() && user.get().getCompletedCourses().size() == 1) {
-            Achievement achievement = achievementCreationService.createAchievement(
-                    "First Course",
-                    AchievementType.COMMON,
-                    "Complete your first course");
-            if (user.get().getAchievements() == null) {
-                user.get().setAchievements(new HashSet<>());
-            }
+            boolean hasAchievement = user.get().getAchievements().stream()
+                    .anyMatch(a -> a.getName().equals("First Course"));
 
-            user.get().getAchievements().add(achievement);
-            achievementRepository.save(achievement);
-            userRepository.save(user.get());
-            achievementCreationService.addAchievementToUser(userId, achievement);
+            if (!hasAchievement) {
+                Achievement achievement = achievementCreationService.createAchievement(
+                        "First Course",
+                        AchievementType.COMMON,
+                        "Complete your first course");
+
+                user.get().getAchievements().add(achievement);
+                achievementRepository.save(achievement);
+                userRepository.save(user.get());
+                achievementCreationService.addAchievementToUser(userId, achievement);
+            }
         }
     }
 
@@ -113,25 +116,27 @@ public class AchievementCheckService {
     public void completeCourseWithoutMistakes(Long userId, Long courseId) {
         Optional<User> user = userRepository.findById(userId);
         Optional<Course> course = courseRepository.findById(courseId);
-        Optional<Homework> homework = homeworkRepository.findByUserAndCourse(user.get(), course.get());
 
         if (user.isPresent() && course.isPresent()) {
-            if (homework.isPresent() &&
-                    homework.get().getMistakes() == 0 &&
-                    homework.get().getCountingTries() == 1 &&
-                    homework.get().getGrade() == 100) {
-                Achievement achievement = achievementCreationService.createAchievement(
-                        "Student of the Year",
-                        AchievementType.LEGENDARY,
-                        "Complete a course without making a single mistake on the tests");
-                if (user.get().getAchievements() == null) {
-                    user.get().setAchievements(new HashSet<>());
-                }
+            boolean hasAchievement = user.get().getAchievements().stream()
+                    .anyMatch(a -> a.getName().equals("Student of the Year"));
 
-                user.get().getAchievements().add(achievement);
-                achievementRepository.save(achievement);
-                userRepository.save(user.get());
-                achievementCreationService.addAchievementToUser(userId, achievement);
+            if (!hasAchievement) {
+                List<Homework> homeworkList = homeworkRepository.findByCourseIdAndUserId(courseId, userId);
+                boolean noMistakesAndSingleTry = homeworkList.stream()
+                        .allMatch(hw -> hw.getMistakes() == 0 && hw.getCountingTries() == 1 && hw.getGrade() == 100);
+
+                if (noMistakesAndSingleTry) {
+                    Achievement achievement = achievementCreationService.createAchievement(
+                            "Student of the Year",
+                            AchievementType.LEGENDARY,
+                            "Complete a course without making a single mistake on the tests");
+
+                    user.get().getAchievements().add(achievement);
+                    achievementRepository.save(achievement);
+                    userRepository.save(user.get());
+                    achievementCreationService.addAchievementToUser(userId, achievement);
+                }
             }
         }
     }

@@ -14,11 +14,13 @@ import com.example.repository.users.UserRepository;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Optional;
+import static com.mysql.cj.conf.PropertyKey.logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Service
 @Transactional
@@ -29,6 +31,8 @@ public class LessonService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final HomeworkGradeMapper homeworkGradeMapper;
+    private static final Logger logger = LoggerFactory.getLogger(LessonService.class);
+
 
     public LessonService(HomeworkGradeRepository homeworkGradeRepository, LessonRepository lessonRepository, HomeworkRepository homeworkRepository, CourseRepository courseRepository, UserRepository userRepository, HomeworkGradeMapper homeworkGradeMapper) {
         this.homeworkGradeRepository = homeworkGradeRepository;
@@ -46,41 +50,61 @@ public class LessonService {
         return lessonRepository.save(lesson);
     }
 
+    @Transactional
     public Homework createHomework(Long lessonId, HomeworkRequest homeworkRequest) {
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+                .orElseThrow(() -> new RuntimeException("Lesson not found with ID: " + lessonId));
+
         if (homeworkRequest.getTitle() == null || homeworkRequest.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("Homework title cannot be null or empty");
         }
         if (homeworkRequest.getDescription() == null || homeworkRequest.getDescription().trim().isEmpty()) {
             throw new IllegalArgumentException("Homework description cannot be null or empty");
         }
+
         Homework homework = new Homework();
         homework.setTitle(homeworkRequest.getTitle());
         homework.setDescription(homeworkRequest.getDescription());
-        homework.setStatus(HomeworkStatus.IN_PROGRESS);
-        homework.setCountingTries(0);
-        homework.setMistakes(0);
-        homework.setLesson(lesson);
-        homework.setGrade(0);
-        if (homeworkRequest.getUserId() != null) {
-            User user = userRepository.findById(homeworkRequest.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            homework.setUser(user);
-            System.out.println("User set: " + user.getUsername());
-        }else {
-            System.out.println("User ID is null in request!");
 
+        if (homeworkRequest.getStatus() != null && !homeworkRequest.getStatus().trim().isEmpty()) {
+            try {
+                homework.setStatus(HomeworkStatus.valueOf(homeworkRequest.getStatus().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid status value: " + homeworkRequest.getStatus());
+            }
+        } else {
+            homework.setStatus(HomeworkStatus.IN_PROGRESS);
         }
 
-        if (homeworkRequest.getDoneAtTime() != null && !homeworkRequest.getDoneAtTime().isEmpty()) {
-            homework.setDoneAtTime(LocalDateTime.parse(homeworkRequest.getDoneAtTime()));
+        homework.setCountingTries(0);
+        homework.setMistakes(0);
+        homework.setGrade(0);
+
+        homework.setLesson(lesson);
+
+        if (homeworkRequest.getUserId() != null) {
+            User user = userRepository.findById(homeworkRequest.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + homeworkRequest.getUserId()));
+            homework.setUser(user);
+            logger.info("User assigned to homework: {}", user.getUsername());
+        } else {
+            logger.warn("User ID is null in the homework request.");
+        }
+
+        if (homeworkRequest.getDoneAtTime() != null && !homeworkRequest.getDoneAtTime().trim().isEmpty()) {
+            try {
+                homework.setDoneAtTime(LocalDateTime.parse(homeworkRequest.getDoneAtTime()));
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Invalid doneAtTime format. Expected format: yyyy-MM-dd'T'HH:mm:ss");
+            }
         } else {
             homework.setDoneAtTime(LocalDateTime.now());
         }
+
         Homework savedHomework = homeworkRepository.save(homework);
         lesson.getHomeworks().add(savedHomework);
         lessonRepository.save(lesson);
+
         return savedHomework;
     }
 
@@ -92,6 +116,7 @@ public class LessonService {
     }
 
     public HomeworkGradeResponse gradeHomework(HomeworkGradeRequest request) {
+
         Homework homework = homeworkRepository.findById(request.getHomeworkId())
                 .orElseThrow(() -> new RuntimeException("Homework not found"));
         Hibernate.initialize(homework.getLesson());
@@ -99,16 +124,18 @@ public class LessonService {
                 .orElseThrow(() -> new RuntimeException("Teacher not found"));
         User student = userRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
-
         if (!homework.getLesson().getCourse().getStudents().contains(student)) {
             throw new RuntimeException("Student is not enrolled in the course of this homework");
         }
+
+
         List<HomeworkGrade> existingHomeworkGrades = homeworkGradeRepository.findByHomeworkIdAndTeacherIdAndStudentId(
                 request.getHomeworkId(), request.getTeacherId(), request.getStudentId());
-        if (!existingHomeworkGrades.isEmpty()) {
-            throw new RuntimeException("Grade for this homework already exists");
+        if (existingHomeworkGrades.size() > 1) {
+            throw new RuntimeException("Multiple grades found for the same homework, teacher, and student");
         }
-        HomeworkGrade homeworkGrade = new HomeworkGrade();
+
+        HomeworkGrade homeworkGrade = existingHomeworkGrades.isEmpty() ? new HomeworkGrade() : existingHomeworkGrades.get(0);
         homeworkGrade.setHomework(homework);
         homeworkGrade.setTeacher(teacher);
         homeworkGrade.setCourse(homework.getLesson().getCourse());
