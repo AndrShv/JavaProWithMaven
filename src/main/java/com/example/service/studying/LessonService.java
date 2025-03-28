@@ -3,6 +3,8 @@ package com.example.service.studying;
 import com.example.dto.request.HomeworkGradeRequest;
 import com.example.dto.request.HomeworkRequest;
 import com.example.dto.response.HomeworkGradeResponse;
+import com.example.dto.response.HomeworkResponse;
+import com.example.dto.response.LessonResponse;
 import com.example.extraConfigs.HomeworkStatus;
 import com.example.mappers.HomeworkGradeMapper;
 import com.example.model.*;
@@ -11,13 +13,20 @@ import com.example.repository.studying.HomeworkGradeRepository;
 import com.example.repository.studying.HomeworkRepository;
 import com.example.repository.studying.LessonRepository;
 import com.example.repository.users.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import static com.mysql.cj.conf.PropertyKey.logger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +117,7 @@ public class LessonService {
         return savedHomework;
     }
 
+
     public List<Homework> getHomeworksByLessonId(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new RuntimeException("Lesson not found"));
@@ -166,9 +176,96 @@ public class LessonService {
                 .orElseThrow(() -> new RuntimeException("Course not found"));
         return lessonRepository.findByCourse(course);
     }
+
     public List<HomeworkGrade> getHomeworkGrades(Long homeworkId) {
         return homeworkGradeRepository.findByHomeworkId(homeworkId);
     }
 
+    @Transactional
+    public LessonResponse updateLesson(Long lessonId, Lesson lessonRequest) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new EntityNotFoundException("Lesson not found"));
 
+        if (lessonRequest.getTitle() != null) {
+            lesson.setTitle(lessonRequest.getTitle());
+        }
+        if (lessonRequest.getContent() != null) {
+            lesson.setContent(lessonRequest.getContent());
+        }
+
+        // Обновляем курс, если передан ID
+        if (lessonRequest.getCourse() != null && lessonRequest.getCourse().getId() != null) {
+            Course course = courseRepository.findById(lessonRequest.getCourse().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+            lesson.setCourse(course);
+        }
+
+        // Обновление домашек
+        if (lessonRequest.getHomeworks() != null) {
+            for (Homework homework : lessonRequest.getHomeworks()) {
+                if (homework.getId() == null) {
+                    // Новая домашка
+                    homework.setLesson(lesson);
+                } else {
+                    // Обновление существующей
+                    Homework existingHomework = homeworkRepository.findById(homework.getId())
+                            .orElseThrow(() -> new EntityNotFoundException("Homework not found"));
+                    existingHomework.setTitle(homework.getTitle());
+                    existingHomework.setDescription(homework.getDescription());
+                }
+            }
+        }
+
+        Lesson updatedLesson = lessonRepository.save(lesson);
+
+        return new LessonResponse(
+                updatedLesson.getId(),
+                updatedLesson.getTitle(),
+                updatedLesson.getContent(),
+                updatedLesson.getCourse().getId()
+        );
+    }
+
+
+    public HomeworkResponse updateHomework(Long homeworkId, HomeworkRequest request) {
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new RuntimeException("Homework not found"));
+
+        if (request.getTitle() != null) {
+            homework.setTitle(request.getTitle());
+        }
+        if (request.getDescription() != null) {
+            homework.setDescription(request.getDescription());
+        }
+        if (request.getStatus() != null) {
+            homework.setStatus(HomeworkStatus.valueOf(request.getStatus()));
+        }
+        if (request.getDoneAtTime() != null) {
+            homework.setDoneAtTime(LocalDateTime.parse(request.getDoneAtTime()));
+        }
+        HomeworkResponse response = new HomeworkResponse();
+        response.setId(homework.getId());
+        response.setTitle(homework.getTitle());
+        response.setDescription(homework.getDescription());
+        response.setDoneAtTime(homework.getDoneAtTime());
+        response.setLessonId(homework.getLesson().getId());
+        response.setGrade(homework.getGrade());
+        response.setComment(homework.getComment());
+        Homework updatedHomework = homeworkRepository.save(homework);
+        return response;
+    }
+
+    public void deleteLesson(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+        lessonRepository.delete(lesson);
+    }
+
+    @Transactional
+    public void deleteHomework(Long homeworkId) {
+        homeworkGradeRepository.deleteByHomeworkId(homeworkId);
+        Homework homework = homeworkRepository.findById(homeworkId)
+                .orElseThrow(() -> new RuntimeException("Homework not found"));
+        homeworkRepository.delete(homework);
+    }
 }
