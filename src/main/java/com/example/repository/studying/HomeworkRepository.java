@@ -1,6 +1,5 @@
 package com.example.repository.studying;
 
-import com.example.extraConfigs.HomeworkStatus;
 import com.example.model.Course;
 import com.example.model.Homework;
 import com.example.model.Lesson;
@@ -14,4 +13,5 @@ import java.util.Optional;
 public interface HomeworkRepository extends JpaRepository<Homework, Long>{
     Optional<Homework> findByUserAndCourse(User user, Course course);
     List<Homework> findByLesson(Lesson lesson);
+    List<Homework> findByCourseIdAndUserId(Long courseId, Long userId);
 }

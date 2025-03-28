@@ -17,4 +17,6 @@ public class LessonResponse {
         this.content = content;
         this.courseId = courseId;
     }
+
+    public LessonResponse() {}
 }

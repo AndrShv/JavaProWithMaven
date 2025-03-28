@@ -37,4 +37,9 @@ public class UserService {
         System.out.println("Saving user: " + user.getPassword());
         System.out.println("Saving user: " + user.getId());
     }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 }
