@@ -1,0 +1,32 @@
+
+CREATE TABLE IF NOT EXISTS Homework (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT
+);
+
+
+CREATE TABLE IF NOT EXISTS Lesson (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    homework_id INT,
+    FOREIGN KEY (homework_id) REFERENCES Homework(id)
+);
+
+
+CREATE TABLE IF NOT EXISTS Schedule (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    lesson_id INT,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS Schedule_Lesson (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    schedule_id INT,
+    lesson_id INT,
+    FOREIGN KEY (schedule_id) REFERENCES Schedule(id),
+    FOREIGN KEY (lesson_id) REFERENCES Lesson(id)
+);
